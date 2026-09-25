@@ -1,0 +1,20 @@
+[
+  {
+    "id": "twitter",
+    "label": "Twitter / X",
+    "icon": "chat",
+    "url": "https://fuzeiii.gg"
+  },
+  {
+    "id": "youtube",
+    "label": "YouTube",
+    "icon": "smart_display",
+    "url": "https://fuzeiii.gg"
+  },
+  {
+    "id": "website",
+    "label": "Site web",
+    "icon": "language",
+    "url": "https://fuzeiii.gg"
+  }
+]

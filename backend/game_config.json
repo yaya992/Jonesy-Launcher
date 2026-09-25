@@ -1,0 +1,50 @@
+{
+  "server": {
+    "port": 4000,
+    "adminPassword": "admin"
+  },
+  "maintenance": {
+    "enabled": false,
+    "message": "Maintenance en cours, le jeu sera de retour très vite.",
+    "allowDownloads": true
+  },
+  "modules": {
+    "news": {
+      "enabled": true,
+      "maxPosts": 5
+    },
+    "discord": {
+      "enabled": false,
+      "inviteUrl": ""
+    },
+    "faq": {
+      "enabled": false
+    },
+    "socials": {
+      "enabled": true
+    },
+    "serverStatus": {
+      "enabled": true
+    },
+    "twitch": {
+      "enabled": true,
+      "channelUrl": "https://fuzeiii.gg"
+    },
+    "credits": {
+      "enabled": true
+    }
+  },
+  "games": [
+    {
+      "id": "season-main",
+      "name": "Saison en cours",
+      "displayVersion": "1.0.0",
+      "executable": "GameClient.exe",
+      "changelog": "- Version initiale",
+      "requirements": {
+        "ramGB": 8,
+        "cpuCores": 4
+      }
+    }
+  ]
+}

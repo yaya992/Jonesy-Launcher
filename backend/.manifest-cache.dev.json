@@ -1,0 +1,12 @@
+{
+  "GameClient.exe": {
+    "mtimeMs": 1789489774443.0354,
+    "size": 70,
+    "sha256": "6a37bc1e10c04fea1d5d10a98a31e5682cf95b5bc7593865a36da292f5ee63b6"
+  },
+  "paks/pakchunk0.pak": {
+    "mtimeMs": 1789489774551.3257,
+    "size": 20971520,
+    "sha256": "2b86c1a4bc481a778e6d5e132c91c7ede983412f0d0ea77e5edb5acf92b5fcb4"
+  }
+}

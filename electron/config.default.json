@@ -1,0 +1,25 @@
+{
+  "app": {
+    "name": "Game Launcher",
+    "productId": "com.stef.launcher"
+  },
+  "server": {
+    "url": "https://api.example.com"
+  },
+  "window": {
+    "width": 1000,
+    "height": 630,
+    "minWidth": 900,
+    "minHeight": 580
+  },
+  "download": {
+    "concurrency": 3
+  },
+  "game": {
+    "launchExecutable": "AzureAnticheat.exe"
+  },
+  "behavior": {
+    "minimizeToTray": true,
+    "launchAtStartup": false
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "jonesy-launcher",
+  "version": "1.0.0",
+  "description": "Launcher desktop (Electron + React) type Retrac : Home / Library / Settings + backend de t\u00e9l\u00e9chargement de jeu",
+  "main": "electron/main.js",
+  "author": "Stef",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k -n BACKEND,VITE,ELECTRON -c yellow,blue,green \"npm:backend:dev\" \"vite\" \"npm:electron:dev\"",
+    "backend:dev": "node backend/server.js",
+    "electron:dev": "wait-on tcp:5173 tcp:4000 && cross-env NODE_ENV=development electron .",
+    "build": "vite build",
+    "electron:build": "npm run build && electron-builder --win",
+    "preview": "vite preview",
+    "release": "npm run build && electron-builder --win --publish always",
+    "build:installer": "npm run electron:build"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "chokidar": "^3.6.0",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3",
+    "express": "^4.19.2",
+    "postcss": "^8.4.41",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.1",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.jonesy.launcher",
+    "productName": "Jonesy Launcher",
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "yaya992",
+      "repo": "Jonesy-Launcher",
+      "releaseType": "release"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    }
+  }
+}

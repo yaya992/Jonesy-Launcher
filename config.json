@@ -1,0 +1,25 @@
+{
+  "app": {
+    "name": "Jonesy Launcher",
+    "productId": "com.jonesy.launcher"
+  },
+  "server": {
+    "url": "http://localhost:4000"
+  },
+  "window": {
+    "width": 1000,
+    "height": 630,
+    "minWidth": 900,
+    "minHeight": 580
+  },
+  "download": {
+    "concurrency": 3
+  },
+  "game": {
+    "launchExecutable": "AzureAnticheat.exe"
+  },
+  "behavior": {
+    "minimizeToTray": true,
+    "launchAtStartup": false
+  }
+}

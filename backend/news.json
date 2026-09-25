@@ -1,0 +1,8 @@
+[
+  {
+    "id": "welcome",
+    "title": "Bienvenue sur le launcher",
+    "date": "2026-09-15",
+    "body": "Ceci est un exemple d'actualité, modifiable depuis le panel admin (`/admin`) ou directement dans `backend/news.json`.\n\n- Markdown supporté (listes, **gras**, liens…)\n- La plus récente s'affiche en premier sur la page Home du launcher"
+  }
+]

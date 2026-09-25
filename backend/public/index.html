@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Backend launcher</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", Inter, sans-serif;
+    background: #0b0c11; color: #e8e9ee; display: flex; height: 100vh; overflow: hidden;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 14px; color: #8b8fa3; text-transform: uppercase; letter-spacing: .04em; margin: 28px 0 12px; }
+  h2:first-child { margin-top: 0; }
+  p.hint { color: #8b8fa3; font-size: 13px; margin: 0 0 20px; }
+  .card {
+    background: #12151c; border: 1px solid rgba(255,255,255,.06); border-radius: 12px;
+    padding: 18px; margin-bottom: 14px;
+  }
+  label { display: block; font-size: 12px; color: #8b8fa3; margin: 10px 0 4px; }
+  input, textarea {
+    width: 100%; background: #1b1e29; border: 1px solid rgba(255,255,255,.08); border-radius: 8px;
+    color: #e8e9ee; padding: 8px 10px; font-size: 13px; font-family: inherit;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  button {
+    background: linear-gradient(90deg, #6d5bff, #22d3ee); border: none; color: white;
+    font-weight: 600; font-size: 13px; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+  }
+  button.secondary { background: rgba(255,255,255,.08); }
+  button.danger { background: rgba(239,68,68,.15); color: #f87171; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; align-items: center; }
+  #status { font-size: 13px; }
+  #status.ok { color: #4ade80; }
+  #status.err { color: #f87171; }
+  .game-header { display: flex; justify-content: space-between; align-items: center; }
+
+  /* --- layout --- */
+  .sidebar {
+    width: 210px; flex-shrink: 0; background: #0e1016; border-right: 1px solid rgba(255,255,255,.06);
+    padding: 20px 12px; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .sidebar .brand { font-size: 13px; font-weight: 700; padding: 0 10px 20px; color: #e8e9ee; }
+  .navgroup-label { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #565a68; padding: 14px 10px 6px; }
+  .navlink {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px;
+    color: #8b8fa3; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 2px;
+  }
+  .navlink:hover { background: rgba(255,255,255,.05); color: #e8e9ee; }
+  .navlink.active { background: rgba(109,91,255,.15); color: #a78bfa; }
+  .navlink .ic { font-size: 15px; width: 18px; text-align: center; }
+  .content { flex: 1; overflow-y: auto; padding: 32px; }
+  .page { display: none; max-width: 720px; }
+  .page.active { display: block; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+
+  /* --- catalogue de modules --- */
+  .module-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,.06); background: #12151c; margin-bottom: 10px; }
+  .module-row-left { display: flex; align-items: center; gap: 12px; }
+  .module-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(109,91,255,.15); display: grid; place-items: center; color: #a78bfa; font-size: 16px; flex-shrink: 0; }
+  .module-name { font-size: 14px; font-weight: 600; color: #e8e9ee; }
+  .module-desc { font-size: 12px; color: #8b8fa3; margin-top: 2px; max-width: 380px; }
+  .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: rgba(255,255,255,.12); border-radius: 999px; cursor: pointer; transition: .15s; }
+  .slider::before { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: .15s; }
+  input:checked + .slider { background: #6d5bff; }
+  input:checked + .slider::before { transform: translateX(16px); }
+  .news-item { background: #1b1e29; border-radius: 8px; padding: 12px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">Backend launcher</div>
+    <div class="navlink active" data-page="home"><span class="ic">⌂</span> Accueil</div>
+    <div class="navlink" data-page="modules"><span class="ic">▤</span> Modules</div>
+    <div class="navgroup-label" id="active-modules-label" style="display:none;">Modules actifs</div>
+    <div id="active-modules-nav"></div>
+  </aside>
+
+  <div class="content">
+    <!-- ============ PAGE ACCUEIL ============ -->
+    <section class="page active" id="page-home">
+      <h1>Accueil</h1>
+      <p class="hint">Maintenance et jeux configurés sur ce backend.</p>
+
+      <h2>Maintenance</h2>
+      <div class="card" id="maintenance-card">
+        <label style="display:flex;align-items:center;gap:10px;margin:0;cursor:pointer;">
+          <input type="checkbox" id="maintenance-enabled" style="width:auto;" />
+          <span style="font-size:14px;color:#e8e9ee;">Activer le mode maintenance</span>
+        </label>
+        <p class="hint" style="margin:8px 0 0;">Bloque la connexion et le lancement du jeu. Les joueurs voient le message ci-dessous.</p>
+        <label>Message affiché</label>
+        <input id="maintenance-message" />
+        <label style="display:flex;align-items:center;gap:10px;margin-top:12px;cursor:pointer;">
+          <input type="checkbox" id="maintenance-downloads" style="width:auto;" />
+          <span style="font-size:13px;color:#8b8fa3;">Autoriser quand même les téléchargements / mises à jour</span>
+        </label>
+      </div>
+
+      <h2>Jeux</h2>
+      <div id="games"></div>
+      <button class="secondary" id="add-game">+ Ajouter un jeu</button>
+    </section>
+
+    <!-- ============ PAGE MODULES (catalogue) ============ -->
+    <section class="page" id="page-modules">
+      <h1>Modules</h1>
+      <p class="hint">Active un module pour qu'il apparaisse dans le launcher — et juste ici, dans la navbar à gauche, pour le configurer.</p>
+      <div id="modules-catalog"></div>
+    </section>
+
+    <!-- ============ PAGES PAR MODULE ACTIVÉ (générées dynamiquement) ============ -->
+    <div id="module-pages"></div>
+
+    <div class="actions" style="margin-top: 28px; max-width: 720px;">
+      <button id="save">Enregistrer tout</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+<script>
+let state = { config: null, news: null, faq: null, catalog: null };
+const ICONS = { feed: "📰", forum: "💬", help: "❓", share: "🔗", dns: "🖥️", live_tv: "📺", groups: "👥" };
+
+async function api(path, options) {
+  const res = await fetch(path, { ...options, headers: { "Content-Type": "application/json", ...(options?.headers || {}) } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+/* ---------- navigation ---------- */
+function goToPage(pageId) {
+  document.querySelectorAll(".navlink").forEach((l) => l.classList.remove("active"));
+  document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+  const link = document.querySelector(`.navlink[data-page="${pageId}"]`);
+  const page = document.getElementById("page-" + pageId);
+  if (link) link.classList.add("active");
+  if (page) page.classList.add("active");
+}
+
+document.addEventListener("click", (e) => {
+  const link = e.target.closest(".navlink[data-page]");
+  if (link) goToPage(link.dataset.page);
+});
+
+/* ---------- jeux (page Accueil) ---------- */
+function gameCard(game, index) {
+  const req = game.requirements || {};
+  return `
+    <div class="card" data-index="${index}">
+      <div class="game-header">
+        <strong>${game.name || "(sans nom)"}</strong>
+        <button class="danger remove-game" data-index="${index}">Supprimer</button>
+      </div>
+      <div class="row">
+        <div><label>Identifiant (id)</label><input data-field="id" value="${game.id || ""}" /></div>
+        <div><label>Nom affiché</label><input data-field="name" value="${game.name || ""}" /></div>
+      </div>
+      <div class="row">
+        <div><label>Version affichée</label><input data-field="displayVersion" value="${game.displayVersion || ""}" /></div>
+        <div><label>Exécutable (marqueur "installé")</label><input data-field="executable" value="${game.executable || ""}" /></div>
+      </div>
+      <div class="row">
+        <div><label>RAM min. (Go)</label><input data-field="req-ramGB" type="number" value="${req.ramGB ?? ""}" /></div>
+        <div><label>Cœurs CPU min.</label><input data-field="req-cpuCores" type="number" value="${req.cpuCores ?? ""}" /></div>
+      </div>
+      <label>Changelog (markdown)</label>
+      <textarea data-field="changelog">${game.changelog || ""}</textarea>
+    </div>
+  `;
+}
+
+function renderGames() {
+  document.getElementById("games").innerHTML = state.config.games.map(gameCard).join("");
+}
+
+document.getElementById("add-game").onclick = () => {
+  state.config.games.push({ id: "", name: "", displayVersion: "1.0.0", executable: "GameClient.exe", changelog: "", requirements: { ramGB: 8, cpuCores: 4 } });
+  renderGames();
+};
+
+document.body.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-game")) {
+    state.config.games.splice(Number(e.target.dataset.index), 1);
+    renderGames();
+  }
+});
+
+/* ---------- catalogue des modules (page Modules : liste + interrupteurs seulement) ---------- */
+function catalogRow(mod) {
+  const enabled = Boolean(state.config.modules[mod.id]?.enabled);
+  return `
+    <div class="module-row">
+      <div class="module-row-left">
+        <div class="module-icon">${ICONS[mod.icon] || "▤"}</div>
+        <div>
+          <div class="module-name">${mod.name}</div>
+          <div class="module-desc">${mod.description}</div>
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" class="module-toggle" data-module="${mod.id}" ${enabled ? "checked" : ""} />
+        <span class="slider"></span>
+      </label>
+    </div>
+  `;
+}
+
+function renderCatalog() {
+  document.getElementById("modules-catalog").innerHTML = state.catalog.map(catalogRow).join("");
+}
+
+document.getElementById("modules-catalog").addEventListener("change", (e) => {
+  if (!e.target.classList.contains("module-toggle")) return;
+  const id = e.target.dataset.module;
+  state.config.modules[id] = { ...(state.config.modules[id] || {}), enabled: e.target.checked };
+  // Le module apparaît/disparaît de la navbar immédiatement, sans attendre
+  // la sauvegarde — l'admin voit tout de suite l'effet de son changement.
+  renderActiveModulesNav();
+  renderModulePages();
+});
+
+/* ---------- navbar dynamique : un lien par module ACTIVÉ ---------- */
+function renderActiveModulesNav() {
+  const active = state.catalog.filter((mod) => state.config.modules[mod.id]?.enabled);
+  document.getElementById("active-modules-label").style.display = active.length ? "block" : "none";
+  document.getElementById("active-modules-nav").innerHTML = active
+    .map((mod) => `
+      <div class="navlink" data-page="module-${mod.id}">
+        <span class="ic">${ICONS[mod.icon] || "▤"}</span> ${mod.name}
+      </div>
+    `)
+    .join("");
+
+  // Si la page actuellement affichée correspond à un module qu'on vient de
+  // désactiver, on retombe sur le catalogue plutôt que de laisser un onglet
+  // actif pointer vers une page qui n'existe plus.
+  const activeIds = active.map((m) => `module-${m.id}`);
+  const current = document.querySelector(".navlink.active")?.dataset.page;
+  if (current && current.startsWith("module-") && !activeIds.includes(current)) {
+    goToPage("modules");
+  }
+}
+
+/* ---------- page dédiée à un module activé (params + contenu) ---------- */
+function paramField(moduleId, param, currentValue) {
+  const value = currentValue ?? param.default ?? "";
+  const type = param.type === "number" ? "number" : "text";
+  return `
+    <label>${param.label}</label>
+    <input type="${type}" ${param.min != null ? `min="${param.min}"` : ""} ${param.max != null ? `max="${param.max}"` : ""}
+           placeholder="${param.placeholder || ""}"
+           data-module="${moduleId}" data-param="${param.key}" value="${value ?? ""}" />
+  `;
+}
+
+function newsEditor() {
+  const items = (state.news || []).map((post, i) => `
+    <div class="news-item" data-news-index="${i}">
+      <div class="row">
+        <div><label>Titre</label><input data-news-field="title" value="${post.title || ""}" /></div>
+        <div><label>Date</label><input data-news-field="date" value="${post.date || ""}" /></div>
+      </div>
+      <label>Contenu (markdown)</label>
+      <textarea data-news-field="body">${post.body || ""}</textarea>
+      <div class="actions" style="margin-top:8px;">
+        <button class="danger remove-news" data-news-index="${i}" type="button">Supprimer cette actu</button>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <label style="margin-top:16px;">Actualités publiées</label>
+    ${items || '<p class="hint" style="margin:6px 0;">Aucune actualité pour le moment.</p>'}
+    <button class="secondary" id="add-news" type="button" style="margin-top:8px;">+ Ajouter une actualité</button>
+  `;
+}
+
+function faqEditor() {
+  return `
+    <label style="margin-top:16px;">Contenu de la FAQ (markdown)</label>
+    <textarea id="faq-body" style="min-height:220px;">${state.faq?.body || ""}</textarea>
+  `;
+}
+
+function socialsEditor() {
+  const items = (state.socials || []).map((s, i) => `
+    <div class="news-item social-item" data-social-index="${i}">
+      <div class="row">
+        <div><label>Nom</label><input data-social-field="label" value="${s.label || ""}" /></div>
+        <div><label>URL</label><input data-social-field="url" placeholder="https://..." value="${s.url || ""}" /></div>
+      </div>
+      <div class="actions" style="margin-top:8px;">
+        <button class="danger remove-social" data-social-index="${i}" type="button">Supprimer ce lien</button>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <label style="margin-top:16px;">Liens</label>
+    ${items || '<p class="hint" style="margin:6px 0;">Aucun lien pour le moment.</p>'}
+    <button class="secondary" id="add-social" type="button" style="margin-top:8px;">+ Ajouter un lien</button>
+  `;
+}
+
+function creditsEditor() {
+  const items = (state.credits || []).map((c, i) => `
+    <div class="news-item credit-item" data-credit-index="${i}">
+      <div class="row">
+        <div><label>Nom</label><input data-credit-field="name" value="${c.name || ""}" /></div>
+        <div><label>Rôle</label><input data-credit-field="role" placeholder="Développeur, Modérateur…" value="${c.role || ""}" /></div>
+      </div>
+      <div class="actions" style="margin-top:8px;">
+        <button class="danger remove-credit" data-credit-index="${i}" type="button">Retirer</button>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <label style="margin-top:16px;">Membres</label>
+    ${items || '<p class="hint" style="margin:6px 0;">Aucun membre pour le moment.</p>'}
+    <button class="secondary" id="add-credit" type="button" style="margin-top:8px;">+ Ajouter un membre</button>
+  `;
+}
+
+function modulePageHtml(mod) {
+  const current = state.config.modules[mod.id] || {};
+  const paramsHtml = (mod.params || []).map((p) => paramField(mod.id, p, current[p.key])).join("");
+  const contentHtml = mod.contentEditor === "news" ? newsEditor()
+    : mod.contentEditor === "faq" ? faqEditor()
+    : mod.contentEditor === "socials" ? socialsEditor()
+    : mod.contentEditor === "credits" ? creditsEditor()
+    : "";
+  const noParamsHint = !mod.params?.length && !mod.contentEditor
+    ? '<p class="hint">Rien à configurer ici — juste l\'interrupteur, dans le catalogue Modules.</p>'
+    : "";
+
+  return `
+    <section class="page" id="page-module-${mod.id}">
+      <div class="page-header">
+        <h1>${mod.name}</h1>
+      </div>
+      <p class="hint">${mod.description}</p>
+      ${paramsHtml}${noParamsHint}
+      ${contentHtml}
+    </section>
+  `;
+}
+
+function renderModulePages() {
+  const active = state.catalog.filter((mod) => state.config.modules[mod.id]?.enabled);
+  document.getElementById("module-pages").innerHTML = active.map(modulePageHtml).join("");
+}
+
+document.getElementById("module-pages").addEventListener("click", (e) => {
+  if (e.target.id === "add-news") {
+    state.news = state.news || [];
+    state.news.unshift({ id: String(Date.now()), title: "", date: new Date().toISOString().slice(0, 10), body: "" });
+    renderModulePages();
+  }
+  if (e.target.classList.contains("remove-news")) {
+    state.news.splice(Number(e.target.dataset.newsIndex), 1);
+    renderModulePages();
+  }
+  if (e.target.id === "add-social") {
+    state.socials = state.socials || [];
+    state.socials.push({ id: String(Date.now()), label: "", icon: "link", url: "" });
+    renderModulePages();
+  }
+  if (e.target.classList.contains("remove-social")) {
+    state.socials.splice(Number(e.target.dataset.socialIndex), 1);
+    renderModulePages();
+  }
+  if (e.target.id === "add-credit") {
+    state.credits = state.credits || [];
+    state.credits.push({ id: String(Date.now()), name: "", role: "" });
+    renderModulePages();
+  }
+  if (e.target.classList.contains("remove-credit")) {
+    state.credits.splice(Number(e.target.dataset.creditIndex), 1);
+    renderModulePages();
+  }
+});
+
+/* ---------- lecture du formulaire avant sauvegarde ---------- */
+function readFormIntoState() {
+  state.config.maintenance = {
+    enabled: document.getElementById("maintenance-enabled").checked,
+    message: document.getElementById("maintenance-message").value,
+    allowDownloads: document.getElementById("maintenance-downloads").checked,
+  };
+
+  document.querySelectorAll("#games .card").forEach((card) => {
+    const i = Number(card.dataset.index);
+    const game = state.config.games[i];
+    card.querySelectorAll("[data-field]").forEach((el) => {
+      const field = el.dataset.field;
+      if (field === "req-ramGB") { game.requirements = game.requirements || {}; game.requirements.ramGB = Number(el.value) || undefined; }
+      else if (field === "req-cpuCores") { game.requirements = game.requirements || {}; game.requirements.cpuCores = Number(el.value) || undefined; }
+      else game[field] = el.value;
+    });
+  });
+
+  document.querySelectorAll("#module-pages [data-module][data-param]").forEach((el) => {
+    const id = el.dataset.module;
+    const key = el.dataset.param;
+    state.config.modules[id] = state.config.modules[id] || {};
+    state.config.modules[id][key] = el.type === "number" ? Number(el.value) : el.value;
+  });
+
+  document.querySelectorAll(".news-item:not(.social-item):not(.credit-item)").forEach((item) => {
+    const i = Number(item.dataset.newsIndex);
+    item.querySelectorAll("[data-news-field]").forEach((el) => {
+      state.news[i][el.dataset.newsField] = el.value;
+    });
+  });
+
+  document.querySelectorAll(".social-item").forEach((item) => {
+    const i = Number(item.dataset.socialIndex);
+    item.querySelectorAll("[data-social-field]").forEach((el) => {
+      state.socials[i][el.dataset.socialField] = el.value;
+    });
+  });
+
+  document.querySelectorAll(".credit-item").forEach((item) => {
+    const i = Number(item.dataset.creditIndex);
+    item.querySelectorAll("[data-credit-field]").forEach((el) => {
+      state.credits[i][el.dataset.creditField] = el.value;
+    });
+  });
+
+  const faqBody = document.getElementById("faq-body");
+  if (faqBody) state.faq = { body: faqBody.value };
+}
+
+document.getElementById("save").onclick = async () => {
+  readFormIntoState();
+  const status = document.getElementById("status");
+  status.textContent = "Enregistrement…";
+  status.className = "";
+  try {
+    await api("/admin/api/config", { method: "PUT", body: JSON.stringify(state.config) });
+    await api("/admin/api/news", { method: "PUT", body: JSON.stringify(state.news || []) });
+    if (state.faq) await api("/admin/api/faq", { method: "PUT", body: JSON.stringify(state.faq) });
+    if (state.socials) await api("/admin/api/socials", { method: "PUT", body: JSON.stringify(state.socials) });
+    if (state.credits) await api("/admin/api/credits", { method: "PUT", body: JSON.stringify(state.credits) });
+    status.textContent = "Enregistré ✓";
+    status.className = "ok";
+  } catch (err) {
+    status.textContent = "Échec : " + err.message;
+    status.className = "err";
+  }
+};
+
+(async function init() {
+  [state.config, state.news, state.faq, state.socials, state.credits, state.catalog] = await Promise.all([
+    api("/admin/api/config"),
+    api("/admin/api/news"),
+    api("/admin/api/faq"),
+    api("/admin/api/socials"),
+    api("/admin/api/credits"),
+    api("/admin/api/modules/catalog"),
+  ]);
+  document.getElementById("maintenance-enabled").checked = Boolean(state.config.maintenance.enabled);
+  document.getElementById("maintenance-message").value = state.config.maintenance.message || "";
+  document.getElementById("maintenance-downloads").checked = state.config.maintenance.allowDownloads !== false;
+  renderGames();
+  renderCatalog();
+  renderActiveModulesNav();
+  renderModulePages();
+})();
+</script>
+</body>
+</html>
