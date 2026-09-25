@@ -40,7 +40,9 @@
     "productName": "Jonesy Launcher",
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json"
     ],
     "directories": {
       "output": "release"
