@@ -2,5 +2,6 @@ node_modules/
 release/
 backend/manifest.json
 backend/.manifest-cache.json
+launcher.zip
 setup.bat
 publish.bat
