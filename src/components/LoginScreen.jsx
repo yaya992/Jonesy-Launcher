@@ -30,7 +30,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
     <div className="h-full grid place-items-center bg-base-950">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-white/5 bg-base-900 p-8 space-y-5"
+        className="w-full max-w-sm rounded-2xl border border-tint/5 bg-base-900 p-8 space-y-5"
       >
         <div className="text-center space-y-1">
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-accent-400 to-flux-500 grid place-items-center font-bold text-white text-lg shadow-glow">
@@ -39,7 +39,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
           <h1 className="text-lg font-bold mt-3">
             {isAddingAccount ? "Ajouter un compte" : "Connexion"}
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             {isAddingAccount
               ? "Le compte actuel reste mémorisé"
               : "Connecte-toi avec ton compte de jeu"}
@@ -72,7 +72,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
-            className="w-full px-4 py-2.5 rounded-lg bg-base-800 border border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+            className="w-full px-4 py-2.5 rounded-lg bg-base-800 border border-tint/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
           />
           <input
             type="password"
@@ -80,7 +80,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2.5 rounded-lg bg-base-800 border border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+            className="w-full px-4 py-2.5 rounded-lg bg-base-800 border border-tint/10 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
           />
         </div>
 
@@ -99,7 +99,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
             <button
               type="button"
               onClick={onCancel}
-              className="w-full py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200"
+              className="w-full py-2 rounded-lg text-xs font-medium text-ink-400 hover:text-ink-200"
             >
               Annuler
             </button>

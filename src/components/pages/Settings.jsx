@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { useUpdater } from "../../hooks/useUpdater";
 
 function Section({ title, children }) {
   return (
     <div>
-      <h2 className="text-[11px] font-semibold text-slate-500 tracking-wide mb-2 px-0.5">
+      <h2 className="text-[11px] font-semibold text-ink-500 tracking-wide mb-2 px-0.5">
         {title}
       </h2>
-      <div className="rounded-xl bg-base-900 border border-white/[0.05] divide-y divide-white/[0.05]">
+      <div className="rounded-xl bg-base-900 border border-tint/[0.05] divide-y divide-tint/[0.05]">
         {children}
       </div>
     </div>
@@ -20,15 +21,15 @@ function Row({ icon, label, value, action }) {
     <div className="flex items-center justify-between px-4 py-3 gap-3">
       <div className="flex items-center gap-2.5 min-w-0">
         {icon && (
-          <span className="material-symbols-rounded !text-[18px] text-slate-500 shrink-0">
+          <span className="material-symbols-rounded !text-[18px] text-ink-500 shrink-0">
             {icon}
           </span>
         )}
-        <span className="text-sm text-slate-300 truncate">{label}</span>
+        <span className="text-sm text-ink-300 truncate">{label}</span>
       </div>
       <div className="flex items-center gap-3 min-w-0 shrink-0">
         {value && (
-          <span title={value} className="text-xs text-slate-500 truncate max-w-[180px]">
+          <span title={value} className="text-xs text-ink-500 truncate max-w-[180px]">
             {value}
           </span>
         )}
@@ -45,11 +46,11 @@ function Toggle({ checked, onChange }) {
       role="switch"
       aria-checked={checked}
       className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
-        checked ? "bg-accent-500" : "bg-white/[0.12]"
+        checked ? "bg-accent-500" : "bg-tint/[0.15]"
       }`}
     >
       <span
-        className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+        className={`absolute top-0.5 w-4 h-4 rounded-full bg-ink-100 shadow-sm transition-transform ${
           checked ? "translate-x-[18px]" : "translate-x-0.5"
         }`}
       />
@@ -57,8 +58,17 @@ function Toggle({ checked, onChange }) {
   );
 }
 
+const ACCENT_PRESETS = [
+  { label: "Violet", value: "#6d5bff" },
+  { label: "Cyan", value: "#22d3ee" },
+  { label: "Rose", value: "#f43f5e" },
+  { label: "Vert", value: "#22c55e" },
+  { label: "Orange", value: "#f97316" },
+];
+
 export default function Settings({ gameId }) {
   const { account, accounts, logout, switchAccount, removeAccount } = useAuth();
+  const { theme, accentColor, setTheme, setAccentColor } = useTheme();
   const [settings, setSettings] = useState(null);
   const [appConfig, setAppConfig] = useState(null);
   const [system, setSystem] = useState(null);
@@ -104,8 +114,8 @@ export default function Settings({ gameId }) {
   return (
     <div className="p-7 overflow-y-auto h-full max-w-lg space-y-6">
       <div>
-        <h1 className="text-lg font-bold text-slate-100">Settings</h1>
-        <p className="text-xs text-slate-500 mt-0.5">Comptes et préférences du launcher.</p>
+        <h1 className="text-lg font-bold text-ink-100">Settings</h1>
+        <p className="text-xs text-ink-500 mt-0.5">Comptes et préférences du launcher.</p>
       </div>
 
       <Section title="COMPTES">
@@ -138,7 +148,7 @@ export default function Settings({ gameId }) {
                     <button
                       onClick={() => removeAccount(acc.email)}
                       title="Oublier ce compte"
-                      className="text-slate-500 hover:text-red-400"
+                      className="text-ink-500 hover:text-red-400"
                     >
                       <span className="material-symbols-rounded !text-[16px]">close</span>
                     </button>
@@ -149,6 +159,69 @@ export default function Settings({ gameId }) {
           />
         ))}
         {!accounts.length && <Row icon="person_off" label="Aucun compte mémorisé" />}
+      </Section>
+
+      <Section title="APPARENCE">
+        <Row
+          icon="contrast"
+          label="Thème"
+          action={
+            <div className="flex items-center gap-0.5 bg-base-800 rounded-lg p-0.5">
+              <button
+                onClick={() => setTheme("dark")}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  theme === "dark"
+                    ? "bg-accent-500 text-white"
+                    : "text-ink-500 hover:text-ink-300"
+                }`}
+              >
+                Sombre
+              </button>
+              <button
+                onClick={() => setTheme("light")}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  theme === "light"
+                    ? "bg-accent-500 text-white"
+                    : "text-ink-500 hover:text-ink-300"
+                }`}
+              >
+                Clair
+              </button>
+            </div>
+          }
+        />
+        <Row
+          icon="palette"
+          label="Couleur d'accent"
+          action={
+            <div className="flex items-center gap-2">
+              {ACCENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  title={preset.label}
+                  onClick={() => setAccentColor(preset.value)}
+                  style={{ backgroundColor: preset.value }}
+                  className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${
+                    accentColor.toLowerCase() === preset.value
+                      ? "ring-2 ring-offset-2 ring-offset-base-900 ring-accent-500"
+                      : ""
+                  }`}
+                />
+              ))}
+              <label
+                title="Couleur personnalisée"
+                className="relative w-5 h-5 rounded-full overflow-hidden border border-tint/20 cursor-pointer shrink-0"
+              >
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="absolute -top-1 -left-1 w-7 h-7 cursor-pointer"
+                />
+              </label>
+            </div>
+          }
+        />
       </Section>
 
       <Section title="COMPORTEMENT">
@@ -202,7 +275,7 @@ export default function Settings({ gameId }) {
               <button
                 onClick={handleChooseFolder}
                 disabled={!gameId}
-                className="text-xs font-medium text-slate-300 hover:text-slate-100 disabled:opacity-40"
+                className="text-xs font-medium text-ink-300 hover:text-ink-100 disabled:opacity-40"
               >
                 Changer
               </button>
@@ -241,7 +314,7 @@ export default function Settings({ gameId }) {
         )}
       </Section>
 
-      <p className="text-[11px] text-slate-600 px-0.5">
+      <p className="text-[11px] text-ink-600 px-0.5">
         {appConfig?.appName ?? "Game Launcher"} — version {appVersion ?? "…"}
       </p>
     </div>
@@ -261,11 +334,11 @@ function UpdateAction({ status, percent, onCheck, onRestart }) {
   }
 
   if (status === "checking") {
-    return <span className="text-xs text-slate-500">Vérification…</span>;
+    return <span className="text-xs text-ink-500">Vérification…</span>;
   }
 
   if (status === "downloading") {
-    return <span className="text-xs text-slate-500">Téléchargement… {percent ?? 0}%</span>;
+    return <span className="text-xs text-ink-500">Téléchargement… {percent ?? 0}%</span>;
   }
 
   if (status === "up-to-date") {
@@ -273,7 +346,7 @@ function UpdateAction({ status, percent, onCheck, onRestart }) {
   }
 
   return (
-    <button onClick={onCheck} className="text-xs font-medium text-slate-300 hover:text-slate-100">
+    <button onClick={onCheck} className="text-xs font-medium text-ink-300 hover:text-ink-100">
       Vérifier
     </button>
   );

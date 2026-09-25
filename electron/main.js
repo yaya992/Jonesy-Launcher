@@ -13,6 +13,7 @@ const { getEndpoints } = require("./endpoints");
 const { getSystemInfo, checkRequirements } = require("./systemInfo");
 const { getMaintenance, getServiceStatus } = require("./statusService");
 const { initAutoUpdater, checkForUpdates, quitAndInstall, getPendingUpdateVersion } = require("./updater");
+const { initNotifications, destroyNotifications } = require("./notifications");
 
 const isDev = process.env.NODE_ENV === "development";
 const config = getConfig();
@@ -29,6 +30,8 @@ const store = new Store({
     preferences: {
       minimizeToTray: config.behavior?.minimizeToTray ?? true,
       launchAtStartup: config.behavior?.launchAtStartup ?? false,
+      theme: config.behavior?.theme ?? "dark",
+      accentColor: config.behavior?.accentColor ?? "#6d5bff",
     },
   },
 });
@@ -135,6 +138,7 @@ app.whenReady().then(() => {
   createTray();
   applyLaunchAtStartup(getPreferences().launchAtStartup);
   initAutoUpdater(mainWindow);
+  initNotifications(() => mainWindow);
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -149,6 +153,7 @@ app.on("window-all-closed", () => {
 app.on("before-quit", () => {
   isQuitting = true;
   gameManager.destroy();
+  destroyNotifications();
   gameWatchers.forEach((interval) => clearInterval(interval));
   gameWatchers.clear();
 });

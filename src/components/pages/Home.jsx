@@ -64,10 +64,10 @@ export default function Home({
         <p className="text-[11px] font-semibold text-flux-400 tracking-wide mb-1.5">
           {status?.displayVersion ? `Version ${status.displayVersion}` : "Saison en cours"}
         </p>
-        <h1 className="text-[32px] font-bold tracking-tight leading-none mb-2 text-slate-50">
+        <h1 className="text-[32px] font-bold tracking-tight leading-none mb-2 text-ink-100">
           {status?.name ?? "Bienvenue de retour"}
         </h1>
-        <p className="text-sm text-slate-400 max-w-sm mb-5">
+        <p className="text-sm text-ink-400 max-w-sm mb-5">
           {underMaintenance
             ? "Le jeu est momentanément indisponible."
             : installed
@@ -88,7 +88,7 @@ export default function Home({
                 {warning}
               </p>
             ))}
-            <p className="text-[10px] text-slate-500 mt-1">
+            <p className="text-[10px] text-ink-500 mt-1">
               Tu peux quand même jouer, mais les performances risquent d'être limitées.
             </p>
           </div>
@@ -103,7 +103,7 @@ export default function Home({
             {isMultiGame && (
               <button
                 onClick={onGoToLibrary}
-                className="text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1"
+                className="text-xs font-medium text-ink-400 hover:text-ink-200 transition-colors flex items-center gap-1"
               >
                 <span className="material-symbols-rounded !text-[16px]">grid_view</span>
                 Library
@@ -112,7 +112,7 @@ export default function Home({
             {onGoToNews && (
               <button
                 onClick={onGoToNews}
-                className="text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1"
+                className="text-xs font-medium text-ink-400 hover:text-ink-200 transition-colors flex items-center gap-1"
               >
                 <span className="material-symbols-rounded !text-[16px]">feed</span>
                 Actualités

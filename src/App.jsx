@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { useServiceStatus } from "./hooks/useServiceStatus";
 import { useModules } from "./hooks/useModules";
 import { useCatalog } from "./hooks/useCatalog";
@@ -9,6 +10,7 @@ import Sidebar from "./components/Sidebar";
 import MaintenanceBanner from "./components/MaintenanceBanner";
 import UpdateBanner from "./components/UpdateBanner";
 import LoginScreen from "./components/LoginScreen";
+import NotificationToasts from "./components/NotificationToasts";
 import Home from "./components/pages/Home";
 import Library from "./components/pages/Library";
 import Settings from "./components/pages/Settings";
@@ -45,7 +47,7 @@ function Shell() {
 
   if (loading) {
     return (
-      <div className="h-full grid place-items-center text-slate-500 text-sm">Chargement…</div>
+      <div className="h-full grid place-items-center text-ink-500 text-sm">Chargement…</div>
     );
   }
 
@@ -100,10 +102,13 @@ export default function App() {
   return (
     <div className="h-screen flex flex-col">
       <TitleBar />
+      <NotificationToasts />
       <div className="flex-1 min-h-0">
-        <AuthProvider>
-          <Shell />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Shell />
+          </AuthProvider>
+        </ThemeProvider>
       </div>
     </div>
   );

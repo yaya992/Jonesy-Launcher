@@ -26,6 +26,8 @@
  * étant réglée dans electron/config.default.json.
  */
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
@@ -37,6 +39,7 @@ const { loadFaq, saveFaq } = require("./faq");
 const { loadSocials, saveSocials } = require("./socials");
 const { getServerStatus } = require("./server-status");
 const { loadCredits, saveCredits } = require("./credits");
+const { loadNotifications, pushNotification } = require("./notifications");
 const { MODULE_CATALOG } = require("./module-catalog");
 
 const GAME_ROOT = path.join(__dirname, "game"); // contient un sous-dossier par jeu (game/<id>/)
@@ -174,6 +177,20 @@ async function main() {
 
   const app = express();
   app.use(express.json());
+
+  const httpServer = http.createServer(app);
+  // CORS ouvert : le launcher (Electron, protocole file:// ou origine
+  // arbitraire selon la machine du joueur) doit pouvoir se connecter depuis
+  // n'importe où — c'est un canal de diffusion en lecture seule côté client,
+  // pas une API sensible.
+  const io = new Server(httpServer, { cors: { origin: "*" } });
+
+  io.on("connection", (socket) => {
+    console.log(`[backend-dev] Launcher connecté (${io.engine.clientsCount} au total)`);
+    socket.on("disconnect", () => {
+      console.log(`[backend-dev] Launcher déconnecté (${io.engine.clientsCount} au total)`);
+    });
+  });
 
   app.get("/launcher/manifest.json", (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -340,12 +357,34 @@ async function main() {
     res.json({ ok: true });
   });
 
+  const NOTIFICATION_TYPES = ["update", "announcement", "info", "alert"];
+
+  app.get("/admin/api/notifications", requireAdminAuth, (req, res) => {
+    res.json(loadNotifications());
+  });
+
+  app.post("/admin/api/notify", requireAdminAuth, (req, res) => {
+    const { type, title, message } = req.body || {};
+    if (!NOTIFICATION_TYPES.includes(type)) {
+      return res.status(400).json({ message: `Type invalide (attendu : ${NOTIFICATION_TYPES.join(", ")}).` });
+    }
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: "Titre requis." });
+    }
+
+    const notification = pushNotification({ type, title: title.trim(), message: (message || "").trim() });
+    io.emit("notification", notification);
+    console.log(`[backend-dev] Notification envoyée à ${io.engine.clientsCount} launcher(s) : [${type}] ${title}`);
+    res.json({ ok: true, notification });
+  });
+
   const { server: serverConfig } = loadGameConfig();
   const PORT = process.env.DEV_BACKEND_PORT || serverConfig.port;
 
-  const server = app.listen(PORT, () => {
+  const server = httpServer.listen(PORT, () => {
     console.log(`[backend-dev] Backend sur http://localhost:${PORT}`);
     console.log(`[backend-dev] Panel admin sur http://localhost:${PORT}/admin`);
+    console.log(`[backend-dev] Socket.IO prêt sur le même port (notifications temps réel)`);
     console.log(`[backend-dev] Dossier surveillé : ${GAME_ROOT}`);
   });
 

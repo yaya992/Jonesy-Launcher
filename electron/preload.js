@@ -96,4 +96,12 @@ contextBridge.exposeInMainWorld("launcher", {
       return () => ipcRenderer.removeListener("updater:event", handler);
     },
   },
+
+  notifications: {
+    onPush: (cb) => {
+      const handler = (_e, payload) => cb(payload);
+      ipcRenderer.on("notification:push", handler);
+      return () => ipcRenderer.removeListener("notification:push", handler);
+    },
+  },
 });

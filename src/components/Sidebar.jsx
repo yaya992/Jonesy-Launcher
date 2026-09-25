@@ -51,8 +51,8 @@ export default function Sidebar({ active, onNavigate, onAddAccount, isMultiGame,
               <span
                 className={`w-11 h-11 rounded-xl grid place-items-center transition-colors ${
                   isActive
-                    ? "bg-white/[0.07] text-slate-100"
-                    : "text-slate-500 group-hover:text-slate-300 group-hover:bg-white/[0.04]"
+                    ? "bg-tint/[0.07] text-ink-100"
+                    : "text-ink-500 group-hover:text-ink-300 group-hover:bg-tint/[0.04]"
                 }`}
               >
                 <span className="material-symbols-rounded !text-[22px]">{item.icon}</span>

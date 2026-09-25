@@ -20,11 +20,21 @@
     padding: 18px; margin-bottom: 14px;
   }
   label { display: block; font-size: 12px; color: #8b8fa3; margin: 10px 0 4px; }
-  input, textarea {
+  input, textarea, select {
     width: 100%; background: #1b1e29; border: 1px solid rgba(255,255,255,.08); border-radius: 8px;
     color: #e8e9ee; padding: 8px 10px; font-size: 13px; font-family: inherit;
   }
   textarea { min-height: 80px; resize: vertical; }
+  .notif-history-item { background: #1b1e29; border-radius: 8px; padding: 10px 12px; margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .notif-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; flex-shrink: 0; }
+  .notif-badge.update { background: rgba(109,91,255,.18); color: #a78bfa; }
+  .notif-badge.announcement { background: rgba(34,211,238,.15); color: #22d3ee; }
+  .notif-badge.info { background: rgba(255,255,255,.08); color: #b6bac6; }
+  .notif-badge.alert { background: rgba(239,68,68,.15); color: #f87171; }
+  .notif-text { flex: 1; min-width: 0; }
+  .notif-title { font-size: 13px; font-weight: 600; color: #e8e9ee; }
+  .notif-message { font-size: 12px; color: #8b8fa3; margin-top: 1px; }
+  .notif-date { font-size: 11px; color: #565a68; flex-shrink: 0; white-space: nowrap; }
   .row { display: flex; gap: 12px; }
   .row > div { flex: 1; }
   button {
@@ -78,6 +88,7 @@
     <div class="brand">Backend launcher</div>
     <div class="navlink active" data-page="home"><span class="ic">⌂</span> Accueil</div>
     <div class="navlink" data-page="modules"><span class="ic">▤</span> Modules</div>
+    <div class="navlink" data-page="notifications"><span class="ic">🔔</span> Notifications</div>
     <div class="navgroup-label" id="active-modules-label" style="display:none;">Modules actifs</div>
     <div id="active-modules-nav"></div>
   </aside>
@@ -113,6 +124,34 @@
       <h1>Modules</h1>
       <p class="hint">Active un module pour qu'il apparaisse dans le launcher — et juste ici, dans la navbar à gauche, pour le configurer.</p>
       <div id="modules-catalog"></div>
+    </section>
+
+    <!-- ============ PAGE NOTIFICATIONS (envoi temps réel via Socket.IO) ============ -->
+    <section class="page" id="page-notifications">
+      <h1>Notifications</h1>
+      <p class="hint">Envoyée instantanément à tous les launchers actuellement ouverts (Socket.IO) — pas besoin d'enregistrer, ça part tout de suite.</p>
+
+      <h2>Envoyer</h2>
+      <div class="card">
+        <label>Type</label>
+        <select id="notif-type">
+          <option value="update">Mise à jour</option>
+          <option value="announcement">Annonce</option>
+          <option value="info">Info</option>
+          <option value="alert">Alerte</option>
+        </select>
+        <label>Titre</label>
+        <input id="notif-title" placeholder="Ex : Maintenance ce soir à 22h" />
+        <label>Message (optionnel)</label>
+        <textarea id="notif-message" placeholder="Détails à afficher sous le titre…" style="min-height:60px;"></textarea>
+        <div class="actions">
+          <button id="notif-send">Envoyer maintenant</button>
+          <span id="notif-status"></span>
+        </div>
+      </div>
+
+      <h2>Historique</h2>
+      <div id="notif-history"></div>
     </section>
 
     <!-- ============ PAGES PAR MODULE ACTIVÉ (générées dynamiquement) ============ -->
@@ -388,6 +427,58 @@ document.getElementById("module-pages").addEventListener("click", (e) => {
   }
 });
 
+/* ---------- notifications (page dédiée, envoi immédiat) ---------- */
+const NOTIF_LABELS = { update: "Mise à jour", announcement: "Annonce", info: "Info", alert: "Alerte" };
+
+function notifHistoryItem(n) {
+  const date = new Date(n.sentAt).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return `
+    <div class="notif-history-item">
+      <span class="notif-badge ${n.type}">${NOTIF_LABELS[n.type] || n.type}</span>
+      <div class="notif-text">
+        <div class="notif-title">${n.title}</div>
+        ${n.message ? `<div class="notif-message">${n.message}</div>` : ""}
+      </div>
+      <span class="notif-date">${date}</span>
+    </div>
+  `;
+}
+
+function renderNotifHistory() {
+  const el = document.getElementById("notif-history");
+  el.innerHTML = (state.notifications || []).length
+    ? state.notifications.map(notifHistoryItem).join("")
+    : '<p class="hint" style="margin:6px 0;">Aucune notification envoyée pour le moment.</p>';
+}
+
+document.getElementById("notif-send").onclick = async () => {
+  const type = document.getElementById("notif-type").value;
+  const title = document.getElementById("notif-title").value.trim();
+  const message = document.getElementById("notif-message").value.trim();
+  const status = document.getElementById("notif-status");
+
+  if (!title) {
+    status.textContent = "Le titre est requis.";
+    status.className = "err";
+    return;
+  }
+
+  status.textContent = "Envoi…";
+  status.className = "";
+  try {
+    const result = await api("/admin/api/notify", { method: "POST", body: JSON.stringify({ type, title, message }) });
+    state.notifications = [result.notification, ...(state.notifications || [])];
+    renderNotifHistory();
+    document.getElementById("notif-title").value = "";
+    document.getElementById("notif-message").value = "";
+    status.textContent = "Envoyée ✓";
+    status.className = "ok";
+  } catch (err) {
+    status.textContent = "Échec : " + err.message;
+    status.className = "err";
+  }
+};
+
 /* ---------- lecture du formulaire avant sauvegarde ---------- */
 function readFormIntoState() {
   state.config.maintenance = {
@@ -459,13 +550,14 @@ document.getElementById("save").onclick = async () => {
 };
 
 (async function init() {
-  [state.config, state.news, state.faq, state.socials, state.credits, state.catalog] = await Promise.all([
+  [state.config, state.news, state.faq, state.socials, state.credits, state.catalog, state.notifications] = await Promise.all([
     api("/admin/api/config"),
     api("/admin/api/news"),
     api("/admin/api/faq"),
     api("/admin/api/socials"),
     api("/admin/api/credits"),
     api("/admin/api/modules/catalog"),
+    api("/admin/api/notifications"),
   ]);
   document.getElementById("maintenance-enabled").checked = Boolean(state.config.maintenance.enabled);
   document.getElementById("maintenance-message").value = state.config.maintenance.message || "";
@@ -474,6 +566,7 @@ document.getElementById("save").onclick = async () => {
   renderCatalog();
   renderActiveModulesNav();
   renderModulePages();
+  renderNotifHistory();
 })();
 </script>
 </body>

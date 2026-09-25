@@ -21,13 +21,13 @@
       "enabled": false
     },
     "socials": {
-      "enabled": true
+      "enabled": false
     },
     "serverStatus": {
       "enabled": true
     },
     "twitch": {
-      "enabled": true,
+      "enabled": false,
       "channelUrl": "https://fuzeiii.gg"
     },
     "credits": {

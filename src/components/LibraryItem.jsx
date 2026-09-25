@@ -22,13 +22,13 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
   };
 
   return (
-    <div className="rounded-xl bg-base-900 border border-white/[0.05] overflow-hidden flex flex-col">
+    <div className="rounded-xl bg-base-900 border border-tint/[0.05] overflow-hidden flex flex-col">
       {/* Vignette : dégradé de marque, pas d'asset externe nécessaire */}
       <div className="h-20 bg-[linear-gradient(135deg,#1c1f33_0%,#141620_100%)] relative">
         <div className="absolute inset-0 bg-gradient-to-t from-base-900 to-transparent" />
         <span
           className={`absolute top-2.5 right-2.5 material-symbols-rounded !text-[18px] ${
-            installed ? "text-flux-400" : "text-slate-600"
+            installed ? "text-flux-400" : "text-ink-600"
           }`}
         >
           {installed ? "check_circle" : "cloud_off"}
@@ -37,8 +37,8 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
 
       <div className="p-3.5 flex flex-col gap-2.5 flex-1">
         <div>
-          <h3 className="text-sm font-semibold text-slate-100 truncate">{game.name}</h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink-100 truncate">{game.name}</h3>
+          <p className="text-[11px] text-ink-500 mt-0.5">
             v{status?.displayVersion ?? game.displayVersion ?? game.version}
             {installed && (
               <span className={upToDate ? "text-flux-400" : "text-amber-400"}>
@@ -54,7 +54,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
           <div>
             <button
               onClick={() => setShowChangelog(!showChangelog)}
-              className="text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-0.5 transition-colors"
+              className="text-[11px] text-ink-500 hover:text-ink-300 flex items-center gap-0.5 transition-colors"
             >
               <span className="material-symbols-rounded !text-[14px]">
                 {showChangelog ? "expand_less" : "expand_more"}
@@ -63,7 +63,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
             </button>
             {showChangelog && (
               <div
-                className="text-[11px] text-slate-400 leading-relaxed mt-1.5 pl-1 space-y-1"
+                className="text-[11px] text-ink-400 leading-relaxed mt-1.5 pl-1 space-y-1"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(changelog) }}
               />
             )}
@@ -110,7 +110,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               onClick={launch}
               disabled={underMaintenance || running}
               title={underMaintenance ? "Indisponible pendant la maintenance" : undefined}
-              className="px-3 py-1.5 rounded-md bg-white/[0.07] hover:bg-white/[0.12] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-100 flex items-center gap-1"
+              className="px-3 py-1.5 rounded-md bg-tint/[0.07] hover:bg-tint/[0.12] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-ink-100 flex items-center gap-1"
             >
               {running ? (
                 <span className="w-1.5 h-1.5 rounded-full bg-flux-400 animate-pulse" />
@@ -129,7 +129,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
                 onClick={handleVerify}
                 disabled={isWorking}
                 title="Vérifier"
-                className="w-7 h-7 rounded-md hover:bg-white/[0.06] disabled:opacity-50 grid place-items-center text-slate-400"
+                className="w-7 h-7 rounded-md hover:bg-tint/[0.06] disabled:opacity-50 grid place-items-center text-ink-400"
               >
                 <span className="material-symbols-rounded !text-[16px]">fact_check</span>
               </button>
@@ -137,7 +137,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
                 onClick={repair}
                 disabled={isWorking}
                 title="Réparer"
-                className="w-7 h-7 rounded-md hover:bg-white/[0.06] disabled:opacity-50 grid place-items-center text-slate-400"
+                className="w-7 h-7 rounded-md hover:bg-tint/[0.06] disabled:opacity-50 grid place-items-center text-ink-400"
               >
                 <span className="material-symbols-rounded !text-[16px]">build</span>
               </button>

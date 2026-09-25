@@ -23,23 +23,23 @@ export default function AccountSwitcher({ onAddAccount }) {
       <button
         onClick={() => setOpen(!open)}
         title={account?.displayName ?? "Compte"}
-        className="w-9 h-9 rounded-full bg-base-800 border border-white/10 grid place-items-center text-xs font-semibold text-slate-300 hover:border-accent-400/60 transition-colors"
+        className="w-9 h-9 rounded-full bg-base-800 border border-tint/10 grid place-items-center text-xs font-semibold text-ink-300 hover:border-accent-400/60 transition-colors"
       >
         {account?.displayName?.[0]?.toUpperCase() ?? "?"}
       </button>
 
       {open && (
-        <div className="absolute bottom-0 left-12 z-50 w-56 rounded-xl bg-base-850 border border-white/10 shadow-xl overflow-hidden">
-          <div className="px-3 py-2.5 border-b border-white/5">
-            <p className="text-xs font-semibold text-slate-200 truncate">
+        <div className="absolute bottom-0 left-12 z-50 w-56 rounded-xl bg-base-850 border border-tint/10 shadow-xl overflow-hidden">
+          <div className="px-3 py-2.5 border-b border-tint/5">
+            <p className="text-xs font-semibold text-ink-200 truncate">
               {account?.displayName}
             </p>
-            <p className="text-[10px] text-slate-500 truncate">{account?.email}</p>
+            <p className="text-[10px] text-ink-500 truncate">{account?.email}</p>
           </div>
 
           {others.length > 0 && (
-            <div className="py-1 border-b border-white/5">
-              <p className="px-3 py-1 text-[10px] text-slate-500">Changer de compte</p>
+            <div className="py-1 border-b border-tint/5">
+              <p className="px-3 py-1 text-[10px] text-ink-500">Changer de compte</p>
               {others.map((other) => (
                 <button
                   key={other.email}
@@ -47,16 +47,16 @@ export default function AccountSwitcher({ onAddAccount }) {
                     await switchAccount(other.email);
                     setOpen(false);
                   }}
-                  className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-white/[0.06] text-left"
+                  className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-tint/[0.06] text-left"
                 >
-                  <span className="w-6 h-6 rounded-full bg-base-700 grid place-items-center text-[10px] font-semibold text-slate-300 shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-base-700 grid place-items-center text-[10px] font-semibold text-ink-300 shrink-0">
                     {other.displayName?.[0]?.toUpperCase() ?? "?"}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-xs text-slate-200 truncate">
+                    <span className="block text-xs text-ink-200 truncate">
                       {other.displayName}
                     </span>
-                    <span className="block text-[10px] text-slate-500 truncate">
+                    <span className="block text-[10px] text-ink-500 truncate">
                       {other.email}
                     </span>
                   </span>
@@ -70,9 +70,9 @@ export default function AccountSwitcher({ onAddAccount }) {
               setOpen(false);
               onAddAccount?.();
             }}
-            className="w-full px-3 py-2.5 flex items-center gap-2 hover:bg-white/[0.06] text-left text-xs text-slate-300"
+            className="w-full px-3 py-2.5 flex items-center gap-2 hover:bg-tint/[0.06] text-left text-xs text-ink-300"
           >
-            <span className="material-symbols-rounded !text-[16px] text-slate-500">
+            <span className="material-symbols-rounded !text-[16px] text-ink-500">
               person_add
             </span>
             Ajouter un compte

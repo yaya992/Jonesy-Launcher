@@ -37,20 +37,20 @@ export default function ProgressBar({ progress, compact = false }) {
   return (
     <div className="w-full">
       <div
-        className={`flex justify-between text-slate-400 mb-1 ${
+        className={`flex justify-between text-ink-400 mb-1 ${
           compact ? "text-[10px]" : "text-xs"
         }`}
       >
         <span>{label}</span>
         <span>{percent}%</span>
       </div>
-      <div className={`rounded-full bg-white/[0.06] overflow-hidden ${compact ? "h-1" : "h-1.5"}`}>
+      <div className={`rounded-full bg-tint/[0.06] overflow-hidden ${compact ? "h-1" : "h-1.5"}`}>
         <div
           className="h-full rounded-full bg-gradient-to-r from-accent-500 to-flux-500 transition-all duration-200"
           style={{ width: `${percent}%` }}
         />
       </div>
-      {detail && <p className={`text-slate-500 mt-1 ${compact ? "text-[9px]" : "text-[11px]"}`}>{detail}</p>}
+      {detail && <p className={`text-ink-500 mt-1 ${compact ? "text-[9px]" : "text-[11px]"}`}>{detail}</p>}
     </div>
   );
 }

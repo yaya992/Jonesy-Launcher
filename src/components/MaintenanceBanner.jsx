@@ -12,7 +12,7 @@ export default function MaintenanceBanner({ maintenance }) {
           <p className="text-[11px] text-amber-400/80 mt-0.5">{maintenance.message}</p>
         )}
         {maintenance.allowDownloads && (
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-[10px] text-ink-500 mt-1">
             Les téléchargements et mises à jour restent disponibles.
           </p>
         )}

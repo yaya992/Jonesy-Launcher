@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1790376610735-zuuhef",
+    "type": "info",
+    "title": "de",
+    "message": "de",
+    "sentAt": "2026-09-25T22:50:10.735Z"
+  },
+  {
+    "id": "1790376598335-ytle1s",
+    "type": "alert",
+    "title": "dev",
+    "message": "dev",
+    "sentAt": "2026-09-25T22:49:58.335Z"
+  },
+  {
+    "id": "1790376566979-h2mcwo",
+    "type": "update",
+    "title": "test",
+    "message": "test",
+    "sentAt": "2026-09-25T22:49:26.979Z"
+  }
+]

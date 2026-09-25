@@ -51,7 +51,7 @@ export function renderMarkdown(source = "") {
     if (headingMatch) {
       const level = headingMatch[1].length;
       const size = level === 1 ? "text-sm" : "text-[13px]";
-      html.push(`<p class="${size} font-semibold text-slate-200 mt-2">${inline(headingMatch[2])}</p>`);
+      html.push(`<p class="${size} font-semibold text-ink-200 mt-2">${inline(headingMatch[2])}</p>`);
       continue;
     }
 
@@ -64,9 +64,9 @@ export function renderMarkdown(source = "") {
 
 function inline(text) {
   return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-slate-200">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-ink-200">$1</strong>')
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, '<code class="px-1 py-0.5 rounded bg-white/[0.08] text-[11px]">$1</code>')
+    .replace(/`(.+?)`/g, '<code class="px-1 py-0.5 rounded bg-tint/[0.08] text-[11px]">$1</code>')
     .replace(
       /\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g,
       '<a href="$2" target="_blank" rel="noreferrer" class="text-flux-400 hover:underline">$1</a>'
