@@ -99,6 +99,8 @@ echo.
 echo %C_OK%  Publie avec succes sur %BRANCH%%C_RESET%
 echo %C_DIM%  %REPO%%C_RESET%
 
+call :ask_release
+
 :end
 echo.
 pause >nul
@@ -125,4 +127,57 @@ exit /b
 :err
 echo.
 echo %C_ERR%  [X] %~1%C_RESET%
+exit /b
+
+:ask_release
+echo.
+set "DOREL="
+set /p "DOREL=%C_INFO%Creer une release maintenant ? (o/N) : %C_RESET%"
+if /i not "%DOREL%"=="o" exit /b
+
+rem --- Cherche le dernier tag vX.Y.Z et propose le patch suivant ---
+set "LASTTAG="
+for /f "delims=" %%t in ('git tag --list "v*.*.*" --sort=-v:refname 2^>nul') do (
+    if not defined LASTTAG set "LASTTAG=%%t"
+)
+
+if not defined LASTTAG (
+    echo %C_DIM%  Derniere version : aucune%C_RESET%
+    set "NEXTTAG=v1.0.0"
+) else (
+    echo %C_DIM%  Derniere version : %LASTTAG%%C_RESET%
+    set "VER=%LASTTAG:v=%"
+    for /f "tokens=1,2,3 delims=." %%a in ("%VER%") do (
+        set "MAJOR=%%a"
+        set "MINOR=%%b"
+        set /a "PATCH=%%c+1"
+    )
+    set "NEXTTAG=v!MAJOR!.!MINOR!.!PATCH!"
+)
+
+set "NEWTAG="
+set /p "NEWTAG=%C_INFO%Numero de version (Entree = !NEXTTAG!) : %C_RESET%"
+if not defined NEWTAG set "NEWTAG=!NEXTTAG!"
+
+rem Accepte le numero avec ou sans "v" devant
+set "FIRSTCHAR=!NEWTAG:~0,1!"
+if /i not "!FIRSTCHAR!"=="v" set "NEWTAG=v!NEWTAG!"
+
+git rev-parse "!NEWTAG!" >nul 2>&1
+if not errorlevel 1 (
+    call :err "Le tag !NEWTAG! existe deja."
+    exit /b
+)
+
+call :step "Creation et envoi du tag !NEWTAG!..."
+git tag "!NEWTAG!"
+git push origin "!NEWTAG!"
+if errorlevel 1 (
+    call :err "L'envoi du tag a echoue."
+    exit /b
+)
+
+echo.
+echo %C_OK%  Tag !NEWTAG! envoye : le build GitHub Actions va se declencher.%C_RESET%
+echo %C_DIM%  https://github.com/yaya992/Jonesy-Launcher/actions%C_RESET%
 exit /b

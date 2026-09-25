@@ -3,3 +3,5 @@ dist/
 release/
 backend/manifest.json
 backend/.manifest-cache.json
+setup.bat
+publish.bat
