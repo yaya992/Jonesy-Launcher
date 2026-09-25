@@ -1,0 +1,48 @@
+# Emplacement : .github/workflows/build-release.yml
+#
+# Déclenché par un tag "v1.2.3" -> installe les deps, build l'exe Windows
+# via electron-builder, et publie directement la Release GitHub
+# (electron-updater ira chercher latest.yml + l'exe ici).
+#
+# Pour publier :
+#   git tag v1.0.0
+#   git push origin v1.0.0
+
+name: Build & Release (Windows)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      # Le numéro de version publié = celui du tag Git (sans le "v")
+      - name: Aligner la version sur le tag
+        shell: bash
+        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
+
+      # electron-builder publie directement la Release grâce à GH_TOKEN
+      - name: Build + publication (Windows)
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
