@@ -299,6 +299,7 @@ async function main() {
     if (!incoming || !Array.isArray(incoming.games) || typeof incoming.server !== "object") {
       return res.status(400).json({ message: "Format de config invalide." });
     }
+    const previousMaintenance = loadGameConfig().maintenance;
     saveGameConfig(incoming);
     // Un jeu ajouté via l'admin doit avoir son dossier + manifest tout de suite
     for (const game of incoming.games) {
@@ -306,6 +307,18 @@ async function main() {
       await rebuildManifestForGame(game, "édition admin");
     }
     writeManifestSnapshot();
+
+    // Diffusion instantanée si la maintenance a changé : les launchers déjà
+    // ouverts affichent/masquent la bannière tout de suite, sans attendre le
+    // prochain polling (jusqu'à 60s auparavant).
+    const nextMaintenance = incoming.maintenance || {};
+    if (JSON.stringify(previousMaintenance) !== JSON.stringify(nextMaintenance)) {
+      io.emit("maintenance", nextMaintenance);
+      console.log(
+        `[backend-dev] Maintenance ${nextMaintenance.enabled ? "activée" : "désactivée"} — diffusée à ${io.engine.clientsCount} launcher(s)`
+      );
+    }
+
     res.json({ ok: true });
   });
 

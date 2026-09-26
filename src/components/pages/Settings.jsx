@@ -41,20 +41,26 @@ function Row({ icon, label, value, action }) {
 
 function Toggle({ checked, onChange }) {
   return (
-    <button
-      onClick={() => onChange(!checked)}
-      role="switch"
-      aria-checked={checked}
-      className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${
-        checked ? "bg-accent-500" : "bg-tint/[0.15]"
-      }`}
-    >
-      <span
-        className={`absolute top-0.5 w-4 h-4 rounded-full bg-ink-100 shadow-sm transition-transform ${
-          checked ? "translate-x-[18px]" : "translate-x-0.5"
-        }`}
+    <label className="inline-flex items-center cursor-pointer shrink-0">
+      <input
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only peer"
       />
-    </button>
+      <span
+        className="w-9 h-5 rounded-full relative shrink-0 transition-colors
+          border border-tint/20 bg-tint/[0.15]
+          peer-checked:bg-accent-500 peer-checked:border-accent-500
+          peer-focus-visible:ring-2 peer-focus-visible:ring-accent-400 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-base-900"
+      >
+        <span
+          className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-ink-100 shadow-sm transition-transform
+            peer-checked:translate-x-4"
+        />
+      </span>
+    </label>
   );
 }
 

@@ -10,6 +10,7 @@
 const { Notification } = require("electron");
 const { io } = require("socket.io-client");
 const { getConfig } = require("./config");
+const { checkForUpdates } = require("./updater");
 
 let socket = null;
 
@@ -35,6 +36,25 @@ function initNotifications(getMainWindow) {
     }
 
     getMainWindow()?.webContents.send("notification:push", payload);
+
+    // Une notif "Mise à jour" sert aussi de déclencheur : les launchers déjà
+    // ouverts vérifient tout de suite au lieu d'attendre le prochain cycle
+    // horaire d'electron-updater (voir updater.js). L'UI existante
+    // (UpdateBanner / useUpdater) réagit automatiquement aux événements que
+    // checkForUpdates() génère déjà — rien d'autre à brancher côté renderer.
+    if (payload.type === "update") {
+      checkForUpdates();
+    }
+  });
+
+  // Poussé par le backend quand l'admin change la maintenance (voir
+  // PUT /admin/api/config côté serveur) — on ne pousse pas l'objet
+  // directement : on demande au renderer de relire /launcher/status tout de
+  // suite, pour rester sur une seule et même logique de validation/format
+  // que le polling habituel (status:get), au lieu de dupliquer la forme des
+  // données à deux endroits.
+  socket.on("maintenance", () => {
+    getMainWindow()?.webContents.send("status:refresh");
   });
 
   // Volontairement silencieux : le launcher doit rester utilisable même sans

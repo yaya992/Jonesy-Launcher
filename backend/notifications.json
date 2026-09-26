@@ -1,5 +1,19 @@
 [
   {
+    "id": "1790414341498-h4yvp1",
+    "type": "announcement",
+    "title": "d",
+    "message": "d",
+    "sentAt": "2026-09-26T09:19:01.498Z"
+  },
+  {
+    "id": "1790414321314-moftu4",
+    "type": "update",
+    "title": "dev",
+    "message": "dev",
+    "sentAt": "2026-09-26T09:18:41.314Z"
+  },
+  {
     "id": "1790376610735-zuuhef",
     "type": "info",
     "title": "de",

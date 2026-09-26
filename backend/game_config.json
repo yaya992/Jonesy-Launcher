@@ -24,14 +24,14 @@
       "enabled": false
     },
     "serverStatus": {
-      "enabled": true
+      "enabled": false
     },
     "twitch": {
       "enabled": false,
       "channelUrl": "https://fuzeiii.gg"
     },
     "credits": {
-      "enabled": true
+      "enabled": false
     }
   },
   "games": [

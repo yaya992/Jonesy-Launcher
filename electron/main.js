@@ -18,6 +18,12 @@ const { initNotifications, destroyNotifications } = require("./notifications");
 const isDev = process.env.NODE_ENV === "development";
 const config = getConfig();
 
+// electron/assets/icon.ico est copié tel quel dans le build packagé (le
+// pattern "electron/**/*" de package.json → build.files l'inclut déjà, pas
+// besoin d'entrée supplémentaire). Ce même chemin fonctionne donc à
+// l'identique en dev (npm run dev) et dans l'exe installé.
+const ICON_PATH = path.join(__dirname, "assets", "icon.ico");
+
 // Stockage persistant local (chemins d'installation, comptes, préférences…)
 const store = new Store({
   name: "launcher-config",
@@ -57,9 +63,10 @@ function applyLaunchAtStartup(enabled) {
 function createTray() {
   if (tray) return;
 
-  // Icône générée à la volée : évite de dépendre d'un asset externe. Remplace
-  // par nativeImage.createFromPath(...) si tu ajoutes une vraie icône.
-  const icon = nativeImage.createEmpty();
+  // Redimensionnée à 16x16 : la taille native de la zone de notification
+  // Windows, pour un rendu net plutôt que de laisser l'OS sous-échantillonner
+  // une image plus grande à la volée.
+  const icon = nativeImage.createFromPath(ICON_PATH).resize({ width: 16, height: 16 });
   tray = new Tray(icon);
   tray.setToolTip(getConfig().app.name);
 
@@ -99,6 +106,7 @@ function createWindow() {
     // est bloqué juste en dessous pour que ce nom ne soit jamais écrasé par
     // celui, figé au build, de la page chargée.
     title: config.app.name,
+    icon: ICON_PATH,
     frame: false, // on gère une barre de titre custom côté React
     backgroundColor: "#0a0a0f",
     webPreferences: {

@@ -21,9 +21,15 @@ export function useServiceStatus() {
     check();
     const interval = setInterval(check, POLL_INTERVAL_MS);
 
+    // Poke temps réel (Socket.IO côté main, voir electron/notifications.js) :
+    // dès que l'admin change la maintenance, on relit /launcher/status tout
+    // de suite au lieu d'attendre jusqu'à 60s de polling.
+    const offRefresh = window.launcher.status.onRefreshNeeded(check);
+
     return () => {
       cancelled = true;
       clearInterval(interval);
+      offRefresh();
     };
   }, []);
 

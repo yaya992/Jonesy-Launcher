@@ -35,6 +35,11 @@ contextBridge.exposeInMainWorld("launcher", {
 
   status: {
     get: () => ipcRenderer.invoke("status:get"),
+    onRefreshNeeded: (cb) => {
+      const handler = () => cb();
+      ipcRenderer.on("status:refresh", handler);
+      return () => ipcRenderer.removeListener("status:refresh", handler);
+    },
   },
 
   system: {
