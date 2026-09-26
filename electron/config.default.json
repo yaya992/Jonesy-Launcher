@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Game Launcher",
-    "productId": "com.stef.launcher"
+    "name": "Jonesy Launcher",
+    "productId": "com.jonesy.launcher"
   },
   "server": {
     "url": "https://api.example.com"
