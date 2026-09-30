@@ -27,6 +27,16 @@ const DEFAULT_CONFIG = {
     serverStatus: { enabled: false },
     twitch: { enabled: false, channelUrl: "" },
     credits: { enabled: false },
+    discordRpc: {
+      enabled: false,
+      clientId: "",
+      details: "",
+      stateIdle: "Dans le launcher",
+      statePlaying: "En jeu",
+      largeImageKey: "",
+      buttonLabel: "",
+      buttonUrl: "",
+    },
   },
   games: [
     {

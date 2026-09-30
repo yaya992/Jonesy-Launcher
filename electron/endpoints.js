@@ -16,6 +16,7 @@ function getEndpoints() {
   return {
     base,
     login: `${launcher}/login`,
+    exchange: `${launcher}/exchange`,
     manifest: `${launcher}/manifest.json`,
     status: `${launcher}/status`,
     news: `${launcher}/news`,

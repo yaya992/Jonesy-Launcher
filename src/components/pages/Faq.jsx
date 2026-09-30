@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { renderMarkdown } from "../../lib/markdown";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function Faq() {
+  const { t } = useLanguage();
   const [faq, setFaq] = useState(undefined); // undefined = chargement, null = rien à afficher
 
   useEffect(() => {
@@ -10,15 +12,15 @@ export default function Faq() {
 
   return (
     <div className="p-7 overflow-y-auto h-full max-w-2xl">
-      <h1 className="text-lg font-bold text-ink-100">FAQ</h1>
-      <p className="text-xs text-ink-500 mt-0.5 mb-5">Questions fréquentes.</p>
+      <h1 className="text-lg font-bold text-ink-100">{t("pages.faq.title")}</h1>
+      <p className="text-xs text-ink-500 mt-0.5 mb-5">{t("pages.faq.subtitle")}</p>
 
-      {faq === undefined && <p className="text-xs text-ink-500">Chargement…</p>}
+      {faq === undefined && <p className="text-xs text-ink-500">{t("common.loading")}</p>}
 
       {faq === null && (
         <div className="rounded-xl bg-base-900 border border-tint/[0.05] px-5 py-8 text-center">
           <span className="material-symbols-rounded !text-[28px] text-ink-600">help</span>
-          <p className="text-xs text-ink-500 mt-2">Aucune FAQ disponible pour le moment.</p>
+          <p className="text-xs text-ink-500 mt-2">{t("pages.faq.empty")}</p>
         </div>
       )}
 

@@ -4,7 +4,7 @@
     "productId": "com.jonesy.launcher"
   },
   "server": {
-    "url": "https://api.example.com"
+    "url": "http://127.0.0.1:4000"
   },
   "window": {
     "width": 1000,
@@ -16,7 +16,7 @@
     "concurrency": 3
   },
   "game": {
-    "launchExecutable": "AzureAnticheat.exe"
+    "launchExecutable": "Loader.exe"
   },
   "behavior": {
     "minimizeToTray": true,

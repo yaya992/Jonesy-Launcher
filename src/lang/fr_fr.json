@@ -1,0 +1,169 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "cancel": "Annuler",
+    "mo": "Mo",
+    "go": "Go",
+    "downloadFailed": "Le téléchargement a échoué."
+  },
+  "sidebar": {
+    "home": "Accueil",
+    "library": "Bibliothèque",
+    "settings": "Paramètres",
+    "notConfigured": "{{label}} (non configuré)"
+  },
+  "login": {
+    "addAccountTitle": "Ajouter un compte",
+    "loginTitle": "Connexion",
+    "addAccountSubtitle": "Le compte actuel reste mémorisé",
+    "loginSubtitle": "Connecte-toi avec ton compte de jeu",
+    "maintenanceInProgress": "Maintenance en cours",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Mot de passe",
+    "loggingIn": "Connexion…",
+    "addButton": "Ajouter",
+    "loginButton": "Se connecter",
+    "cancel": "Annuler",
+    "genericError": "Connexion impossible."
+  },
+  "accountSwitcher": {
+    "defaultTitle": "Compte",
+    "switchAccount": "Changer de compte",
+    "addAccount": "Ajouter un compte"
+  },
+  "home": {
+    "play": "Jouer",
+    "download": "Télécharger",
+    "update": "Mettre à jour",
+    "unavailable": "Indisponible",
+    "running": "En cours",
+    "versionLabel": "Version {{version}}",
+    "currentSeason": "Saison en cours",
+    "welcomeBack": "Bienvenue de retour",
+    "maintenanceUnavailable": "Le jeu est momentanément indisponible.",
+    "ready": "Ton jeu est prêt.",
+    "updateAvailable": "Une mise à jour est disponible.",
+    "notInstalled": "Le jeu n'est pas encore installé sur cet appareil.",
+    "belowRecommended": "Configuration en dessous des recommandations",
+    "canStillPlay": "Tu peux quand même jouer, mais les performances risquent d'être limitées.",
+    "library": "Library",
+    "news": "Actualités",
+    "unavailableDuringMaintenance": "Indisponible pendant la maintenance",
+    "downloading": "Téléchargement…"
+  },
+  "libraryItem": {
+    "upToDate": "À jour",
+    "updateAvailable": "Mise à jour dispo",
+    "notInstalled": "Non installé",
+    "changelog": "Nouveautés",
+    "filesHealthy": "Fichiers intègres.",
+    "filesToRepair": "{{count}} fichier(s) à réparer.",
+    "install": "Installer",
+    "update": "Mettre à jour",
+    "play": "Jouer",
+    "running": "En cours",
+    "unavailable": "Indisponible",
+    "unavailableDuringMaintenance": "Indisponible pendant la maintenance",
+    "verify": "Vérifier",
+    "repair": "Réparer",
+    "cancel": "Annuler"
+  },
+  "library": {
+    "title": "Library",
+    "subtitle": "Installe, vérifie ou répare tes saisons et contenus.",
+    "loadingCatalog": "Chargement du catalogue…",
+    "empty": "Aucun contenu disponible pour le moment."
+  },
+  "maintenanceBanner": {
+    "title": "Maintenance en cours",
+    "downloadsStillAvailable": "Les téléchargements et mises à jour restent disponibles."
+  },
+  "updateBanner": {
+    "readyMessage": "Mise à jour {{version}}prête — sera installée au prochain redémarrage.",
+    "restartNow": "Redémarrer maintenant"
+  },
+  "progressBar": {
+    "verifyProgress": "Vérification {{current}}/{{total}}",
+    "remaining": "{{eta}} restant"
+  },
+  "pages": {
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Questions fréquentes.",
+      "empty": "Aucune FAQ disponible pour le moment."
+    },
+    "credits": {
+      "title": "Équipe",
+      "subtitle": "Les gens derrière le projet.",
+      "empty": "Aucun membre pour le moment."
+    },
+    "news": {
+      "title": "Actualités",
+      "subtitle": "Les dernières nouvelles du jeu et du serveur.",
+      "empty": "Aucune actualité pour le moment."
+    },
+    "socials": {
+      "title": "Réseaux sociaux",
+      "subtitle": "Retrouve-nous ailleurs.",
+      "empty": "Aucun lien pour le moment."
+    },
+    "serverStatus": {
+      "title": "Statut serveur",
+      "subtitle": "Actualisé automatiquement.",
+      "empty": "Statut indisponible pour le moment.",
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "players": "joueurs"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Comptes et préférences du launcher.",
+    "sections": {
+      "accounts": "COMPTES",
+      "appearance": "APPARENCE",
+      "behavior": "COMPORTEMENT",
+      "system": "SYSTÈME",
+      "installation": "INSTALLATION",
+      "server": "SERVEUR",
+      "updates": "MISES À JOUR"
+    },
+    "active": "ACTIF",
+    "logout": "Logout",
+    "use": "Utiliser",
+    "forgetAccount": "Oublier ce compte",
+    "noAccounts": "Aucun compte mémorisé",
+    "theme": "Thème",
+    "dark": "Sombre",
+    "light": "Clair",
+    "accentColor": "Couleur d'accent",
+    "customColor": "Couleur personnalisée",
+    "accentPresets": {
+      "violet": "Violet",
+      "cyan": "Cyan",
+      "pink": "Rose",
+      "green": "Vert",
+      "orange": "Orange"
+    },
+    "language": "Langue",
+    "minimizeToTray": "Réduire dans la barre système",
+    "launchAtStartup": "Lancer au démarrage de Windows",
+    "discordPresence": "Afficher mon activité sur Discord",
+    "cpu": "Processeur",
+    "cores": "Cœurs",
+    "memory": "Mémoire",
+    "gameFolder": "Dossier de jeu",
+    "open": "Ouvrir",
+    "change": "Changer",
+    "folderChangedInstalled": "Dossier changé. Les fichiers déjà installés n'ont pas été déplacés — relance une installation ou une réparation depuis la Home si besoin.",
+    "folderChangedNew": "Dossier changé. Il sera utilisé pour la prochaine installation.",
+    "backend": "Backend",
+    "launcherVersion": "Version du launcher",
+    "restartToInstall": "Redémarrer pour installer",
+    "checking": "Vérification…",
+    "downloadingPercent": "Téléchargement… {{percent}}%",
+    "upToDate": "À jour",
+    "checkNow": "Vérifier",
+    "footer": "{{appName}} — version {{version}}"
+  }
+}

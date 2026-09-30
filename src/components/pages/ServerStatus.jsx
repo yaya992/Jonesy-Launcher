@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const POLL_INTERVAL_MS = 15_000;
 
 export default function ServerStatus() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState(undefined); // undefined = chargement, null = indisponible
 
   useEffect(() => {
@@ -18,15 +20,15 @@ export default function ServerStatus() {
 
   return (
     <div className="p-7 overflow-y-auto h-full max-w-lg">
-      <h1 className="text-lg font-bold text-ink-100">Statut serveur</h1>
-      <p className="text-xs text-ink-500 mt-0.5 mb-5">Actualisé automatiquement.</p>
+      <h1 className="text-lg font-bold text-ink-100">{t("pages.serverStatus.title")}</h1>
+      <p className="text-xs text-ink-500 mt-0.5 mb-5">{t("pages.serverStatus.subtitle")}</p>
 
-      {status === undefined && <p className="text-xs text-ink-500">Chargement…</p>}
+      {status === undefined && <p className="text-xs text-ink-500">{t("common.loading")}</p>}
 
       {status === null && (
         <div className="rounded-xl bg-base-900 border border-tint/[0.05] px-5 py-8 text-center">
           <span className="material-symbols-rounded !text-[28px] text-ink-600">dns</span>
-          <p className="text-xs text-ink-500 mt-2">Statut indisponible pour le moment.</p>
+          <p className="text-xs text-ink-500 mt-2">{t("pages.serverStatus.empty")}</p>
         </div>
       )}
 
@@ -39,7 +41,7 @@ export default function ServerStatus() {
               }`}
             />
             <span className="text-sm font-semibold text-ink-200">
-              {status.online ? "En ligne" : "Hors ligne"}
+              {status.online ? t("pages.serverStatus.online") : t("pages.serverStatus.offline")}
             </span>
           </div>
 
@@ -48,7 +50,7 @@ export default function ServerStatus() {
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-bold text-ink-100">{status.playerCount}</span>
                 {status.maxPlayers != null && (
-                  <span className="text-sm text-ink-500">/ {status.maxPlayers} joueurs</span>
+                  <span className="text-sm text-ink-500">/ {status.maxPlayers} {t("pages.serverStatus.players")}</span>
                 )}
               </div>
               {status.maxPlayers > 0 && (

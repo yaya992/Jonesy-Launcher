@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { useServiceStatus } from "../hooks/useServiceStatus";
+import logo from "../../electron/assets/icon.png";
 
 export default function LoginScreen({ isAddingAccount = false, onCancel, onSuccess }) {
+  const { t } = useLanguage();
   const { login, notice } = useAuth();
   const { maintenance, isUnderMaintenance } = useServiceStatus();
   const [email, setEmail] = useState("");
@@ -20,7 +23,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
     } catch (err) {
       // Le bandeau de maintenance au-dessus dit déjà l'essentiel : on évite
       // d'afficher en plus un "MAINTENANCE" brut en rouge.
-      setError(err.message === "MAINTENANCE" ? null : err.message || "Connexion impossible.");
+      setError(err.message === "MAINTENANCE" ? null : err.message || t("login.genericError"));
     } finally {
       setLoading(false);
     }
@@ -33,16 +36,12 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
         className="w-full max-w-sm rounded-2xl border border-tint/5 bg-base-900 p-8 space-y-5"
       >
         <div className="text-center space-y-1">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-accent-400 to-flux-500 grid place-items-center font-bold text-white text-lg shadow-glow">
-            G
-          </div>
+          <img src={logo} alt="" className="w-12 h-12 mx-auto rounded-xl shadow-glow" />
           <h1 className="text-lg font-bold mt-3">
-            {isAddingAccount ? "Ajouter un compte" : "Connexion"}
+            {isAddingAccount ? t("login.addAccountTitle") : t("login.loginTitle")}
           </h1>
           <p className="text-xs text-ink-500">
-            {isAddingAccount
-              ? "Le compte actuel reste mémorisé"
-              : "Connecte-toi avec ton compte de jeu"}
+            {isAddingAccount ? t("login.addAccountSubtitle") : t("login.loginSubtitle")}
           </p>
         </div>
 
@@ -50,7 +49,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
           <div className="rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2.5">
             <p className="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
               <span className="material-symbols-rounded !text-[14px]">construction</span>
-              Maintenance en cours
+              {t("login.maintenanceInProgress")}
             </p>
             {maintenance?.message && (
               <p className="text-[11px] text-amber-400/80 mt-1">{maintenance.message}</p>
@@ -67,7 +66,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
         <div className="space-y-3">
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("login.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -76,7 +75,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
           />
           <input
             type="password"
-            placeholder="Mot de passe"
+            placeholder={t("login.passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -92,7 +91,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
             disabled={loading || isUnderMaintenance}
             className="w-full py-2.5 rounded-lg bg-gradient-to-r from-accent-500 to-flux-500 hover:brightness-110 disabled:opacity-50 font-semibold text-sm text-white shadow-glow"
           >
-            {loading ? "Connexion…" : isAddingAccount ? "Ajouter" : "Se connecter"}
+            {loading ? t("login.loggingIn") : isAddingAccount ? t("login.addButton") : t("login.loginButton")}
           </button>
 
           {onCancel && (
@@ -101,7 +100,7 @@ export default function LoginScreen({ isAddingAccount = false, onCancel, onSucce
               onClick={onCancel}
               className="w-full py-2 rounded-lg text-xs font-medium text-ink-400 hover:text-ink-200"
             >
-              Annuler
+              {t("login.cancel")}
             </button>
           )}
         </div>

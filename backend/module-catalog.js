@@ -116,6 +116,75 @@ const MODULE_CATALOG = [
     liveDataProvider: () => ({ live: isTwitchLive() }),
   },
   {
+    id: "discordRpc",
+    name: "Discord Rich Presence",
+    description:
+      "Affiche l'activité du joueur sur son profil Discord (dans le launcher / en jeu, avec le temps écoulé). Crée une application sur discord.com/developers et colle ici son Application ID. Le joueur peut le désactiver dans Settings.",
+    icon: "sports_esports",
+    params: [
+      {
+        key: "clientId",
+        label: "Application ID Discord",
+        type: "text",
+        placeholder: "123456789012345678",
+        default: "",
+      },
+      {
+        key: "details",
+        label: "Ligne principale (vide = nom de l'app)",
+        type: "text",
+        placeholder: "Jonesy Project",
+        default: "",
+      },
+      {
+        key: "stateIdle",
+        label: "Ligne secondaire — dans le launcher",
+        type: "text",
+        default: "Dans le launcher",
+      },
+      {
+        key: "statePlaying",
+        label: "Ligne secondaire — en jeu",
+        type: "text",
+        default: "En jeu",
+      },
+      {
+        key: "largeImageKey",
+        label: "Image (clé de l'asset, Developer Portal → Rich Presence → Art Assets)",
+        type: "text",
+        placeholder: "logo",
+        default: "",
+      },
+      {
+        key: "buttonLabel",
+        label: "Bouton — texte (optionnel)",
+        type: "text",
+        placeholder: "Rejoindre le Discord",
+        default: "",
+      },
+      {
+        key: "buttonUrl",
+        label: "Bouton — lien (https://...)",
+        type: "text",
+        placeholder: "https://discord.gg/...",
+        default: "",
+      },
+    ],
+    // Tâche de fond : tout est lu par le process principal du launcher, qui
+    // pilote Discord en local (pas de page ni d'icône côté launcher, donc
+    // aucune entrée dans src/modules/registry.js). Rien de sensible ici :
+    // un Application ID Discord est public par nature.
+    publicParams: [
+      "clientId",
+      "details",
+      "stateIdle",
+      "statePlaying",
+      "largeImageKey",
+      "buttonLabel",
+      "buttonUrl",
+    ],
+  },
+  {
     id: "credits",
     name: "Équipe",
     description: "Page listant les membres de l'équipe et leur rôle.",

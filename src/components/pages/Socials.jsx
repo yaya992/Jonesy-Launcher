@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function Socials() {
+  const { t } = useLanguage();
   const [socials, setSocials] = useState(undefined); // undefined = chargement
 
   useEffect(() => {
@@ -9,15 +11,15 @@ export default function Socials() {
 
   return (
     <div className="p-7 overflow-y-auto h-full max-w-lg">
-      <h1 className="text-lg font-bold text-ink-100">Réseaux sociaux</h1>
-      <p className="text-xs text-ink-500 mt-0.5 mb-5">Retrouve-nous ailleurs.</p>
+      <h1 className="text-lg font-bold text-ink-100">{t("pages.socials.title")}</h1>
+      <p className="text-xs text-ink-500 mt-0.5 mb-5">{t("pages.socials.subtitle")}</p>
 
-      {socials === undefined && <p className="text-xs text-ink-500">Chargement…</p>}
+      {socials === undefined && <p className="text-xs text-ink-500">{t("common.loading")}</p>}
 
       {socials?.length === 0 && (
         <div className="rounded-xl bg-base-900 border border-tint/[0.05] px-5 py-8 text-center">
           <span className="material-symbols-rounded !text-[28px] text-ink-600">share</span>
-          <p className="text-xs text-ink-500 mt-2">Aucun lien pour le moment.</p>
+          <p className="text-xs text-ink-500 mt-2">{t("pages.socials.empty")}</p>
         </div>
       )}
 

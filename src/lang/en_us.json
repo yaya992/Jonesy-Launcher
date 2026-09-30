@@ -1,0 +1,169 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "mo": "MB",
+    "go": "GB",
+    "downloadFailed": "The download failed."
+  },
+  "sidebar": {
+    "home": "Home",
+    "library": "Library",
+    "settings": "Settings",
+    "notConfigured": "{{label}} (not configured)"
+  },
+  "login": {
+    "addAccountTitle": "Add an account",
+    "loginTitle": "Login",
+    "addAccountSubtitle": "The current account stays signed in",
+    "loginSubtitle": "Sign in with your game account",
+    "maintenanceInProgress": "Maintenance in progress",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "loggingIn": "Signing in…",
+    "addButton": "Add",
+    "loginButton": "Sign in",
+    "cancel": "Cancel",
+    "genericError": "Couldn't sign in."
+  },
+  "accountSwitcher": {
+    "defaultTitle": "Account",
+    "switchAccount": "Switch account",
+    "addAccount": "Add an account"
+  },
+  "home": {
+    "play": "Play",
+    "download": "Download",
+    "update": "Update",
+    "unavailable": "Unavailable",
+    "running": "Running",
+    "versionLabel": "Version {{version}}",
+    "currentSeason": "Current season",
+    "welcomeBack": "Welcome back",
+    "maintenanceUnavailable": "The game is temporarily unavailable.",
+    "ready": "Your game is ready.",
+    "updateAvailable": "An update is available.",
+    "notInstalled": "The game isn't installed on this device yet.",
+    "belowRecommended": "Your setup is below the recommended specs",
+    "canStillPlay": "You can still play, but performance may be limited.",
+    "library": "Library",
+    "news": "News",
+    "unavailableDuringMaintenance": "Unavailable during maintenance",
+    "downloading": "Downloading…"
+  },
+  "libraryItem": {
+    "upToDate": "Up to date",
+    "updateAvailable": "Update available",
+    "notInstalled": "Not installed",
+    "changelog": "What's new",
+    "filesHealthy": "Files are healthy.",
+    "filesToRepair": "{{count}} file(s) need repair.",
+    "install": "Install",
+    "update": "Update",
+    "play": "Play",
+    "running": "Running",
+    "unavailable": "Unavailable",
+    "unavailableDuringMaintenance": "Unavailable during maintenance",
+    "verify": "Verify",
+    "repair": "Repair",
+    "cancel": "Cancel"
+  },
+  "library": {
+    "title": "Library",
+    "subtitle": "Install, verify or repair your seasons and content.",
+    "loadingCatalog": "Loading catalog…",
+    "empty": "No content available yet."
+  },
+  "maintenanceBanner": {
+    "title": "Maintenance in progress",
+    "downloadsStillAvailable": "Downloads and updates remain available."
+  },
+  "updateBanner": {
+    "readyMessage": "Update {{version}}ready — will be installed on next restart.",
+    "restartNow": "Restart now"
+  },
+  "progressBar": {
+    "verifyProgress": "Verifying {{current}}/{{total}}",
+    "remaining": "{{eta}} left"
+  },
+  "pages": {
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Frequently asked questions.",
+      "empty": "No FAQ available yet."
+    },
+    "credits": {
+      "title": "Team",
+      "subtitle": "The people behind the project.",
+      "empty": "No members yet."
+    },
+    "news": {
+      "title": "News",
+      "subtitle": "The latest from the game and the server.",
+      "empty": "No news yet."
+    },
+    "socials": {
+      "title": "Social links",
+      "subtitle": "Find us elsewhere.",
+      "empty": "No links yet."
+    },
+    "serverStatus": {
+      "title": "Server status",
+      "subtitle": "Refreshes automatically.",
+      "empty": "Status unavailable for now.",
+      "online": "Online",
+      "offline": "Offline",
+      "players": "players"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Launcher accounts and preferences.",
+    "sections": {
+      "accounts": "ACCOUNTS",
+      "appearance": "APPEARANCE",
+      "behavior": "BEHAVIOR",
+      "system": "SYSTEM",
+      "installation": "INSTALLATION",
+      "server": "SERVER",
+      "updates": "UPDATES"
+    },
+    "active": "ACTIVE",
+    "logout": "Logout",
+    "use": "Use",
+    "forgetAccount": "Forget this account",
+    "noAccounts": "No saved accounts",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "accentColor": "Accent color",
+    "customColor": "Custom color",
+    "accentPresets": {
+      "violet": "Violet",
+      "cyan": "Cyan",
+      "pink": "Pink",
+      "green": "Green",
+      "orange": "Orange"
+    },
+    "language": "Language",
+    "minimizeToTray": "Minimize to system tray",
+    "launchAtStartup": "Launch at Windows startup",
+    "discordPresence": "Show my activity on Discord",
+    "cpu": "Processor",
+    "cores": "Cores",
+    "memory": "Memory",
+    "gameFolder": "Game folder",
+    "open": "Open",
+    "change": "Change",
+    "folderChangedInstalled": "Folder changed. Already-installed files were not moved — start an install or repair from Home if needed.",
+    "folderChangedNew": "Folder changed. It will be used for the next install.",
+    "backend": "Backend",
+    "launcherVersion": "Launcher version",
+    "restartToInstall": "Restart to install",
+    "checking": "Checking…",
+    "downloadingPercent": "Downloading… {{percent}}%",
+    "upToDate": "Up to date",
+    "checkNow": "Check now",
+    "footer": "{{appName}} — version {{version}}"
+  }
+}

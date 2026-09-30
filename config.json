@@ -16,7 +16,7 @@
     "concurrency": 3
   },
   "game": {
-    "launchExecutable": "AzureAnticheat.exe"
+    "launchExecutable": "Loader.exe"
   },
   "behavior": {
     "minimizeToTray": true,

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function AccountSwitcher({ onAddAccount }) {
+  const { t } = useLanguage();
   const { account, accounts, switchAccount } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -22,7 +24,7 @@ export default function AccountSwitcher({ onAddAccount }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        title={account?.displayName ?? "Compte"}
+        title={account?.displayName ?? t("accountSwitcher.defaultTitle")}
         className="w-9 h-9 rounded-full bg-base-800 border border-tint/10 grid place-items-center text-xs font-semibold text-ink-300 hover:border-accent-400/60 transition-colors"
       >
         {account?.displayName?.[0]?.toUpperCase() ?? "?"}
@@ -39,7 +41,7 @@ export default function AccountSwitcher({ onAddAccount }) {
 
           {others.length > 0 && (
             <div className="py-1 border-b border-tint/5">
-              <p className="px-3 py-1 text-[10px] text-ink-500">Changer de compte</p>
+              <p className="px-3 py-1 text-[10px] text-ink-500">{t("accountSwitcher.switchAccount")}</p>
               {others.map((other) => (
                 <button
                   key={other.email}
@@ -75,7 +77,7 @@ export default function AccountSwitcher({ onAddAccount }) {
             <span className="material-symbols-rounded !text-[16px] text-ink-500">
               person_add
             </span>
-            Ajouter un compte
+            {t("accountSwitcher.addAccount")}
           </button>
         </div>
       )}

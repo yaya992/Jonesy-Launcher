@@ -1,13 +1,15 @@
-function formatBytes(bytes = 0) {
-  if (!bytes) return "0 Mo";
+import { useLanguage } from "../context/LanguageContext";
+
+function formatBytes(t, bytes = 0) {
+  if (!bytes) return `0 ${t("common.mo")}`;
   const mb = bytes / (1024 * 1024);
-  if (mb > 1024) return `${(mb / 1024).toFixed(2)} Go`;
-  return `${mb.toFixed(1)} Mo`;
+  if (mb > 1024) return `${(mb / 1024).toFixed(2)} ${t("common.go")}`;
+  return `${mb.toFixed(1)} ${t("common.mo")}`;
 }
 
-function formatSpeed(bytesPerSecond = 0) {
+function formatSpeed(t, bytesPerSecond = 0) {
   if (!bytesPerSecond) return null;
-  return `${formatBytes(bytesPerSecond)}/s`;
+  return `${formatBytes(t, bytesPerSecond)}/s`;
 }
 
 function formatEta(seconds) {
@@ -21,18 +23,19 @@ function formatEta(seconds) {
 }
 
 export default function ProgressBar({ progress, compact = false }) {
+  const { t } = useLanguage();
   if (!progress) return null;
   const percent = progress.percent ?? 0;
 
-  const speed = formatSpeed(progress.bytesPerSecond);
+  const speed = formatSpeed(t, progress.bytesPerSecond);
   const eta = formatEta(progress.etaSeconds);
 
   const label =
     progress.phase === "verify"
-      ? `Vérification ${progress.current}/${progress.total}`
-      : `${formatBytes(progress.bytesDownloaded)} / ${formatBytes(progress.totalBytes)}`;
+      ? t("progressBar.verifyProgress", { current: progress.current, total: progress.total })
+      : `${formatBytes(t, progress.bytesDownloaded)} / ${formatBytes(t, progress.totalBytes)}`;
 
-  const detail = [speed, eta && `${eta} restant`].filter(Boolean).join(" · ");
+  const detail = [speed, eta && t("progressBar.remaining", { eta })].filter(Boolean).join(" · ");
 
   return (
     <div className="w-full">

@@ -283,6 +283,36 @@ async function main() {
     });
   });
 
+  // Appelé juste avant de lancer le jeu (voir electron/authService.js →
+  // getExchangeCode) : renvoie un code à usage unique et de très courte
+  // durée de vie, passé ensuite à l'exécutable via -client=<code>. Le vrai
+  // backend doit générer un code aléatoire, le stocker côté serveur avec son
+  // expiration, et le jeu doit l'échanger contre sa propre session au
+  // démarrage (à sens unique : le launcher ne le réutilise jamais).
+  app.post("/launcher/exchange", (req, res) => {
+    const { maintenance } = loadGameConfig();
+    if (maintenance.enabled) {
+      return res.status(503).json({
+        maintenance: true,
+        message: maintenance.message || "Service en maintenance.",
+      });
+    }
+
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ message: "Identifiants manquants." });
+    }
+
+    // Démo : 32 caractères hex, comme un vrai exchange_code. En prod, ce code
+    // doit être stocké côté serveur (avec expiration) pour que le jeu puisse
+    // le valider au démarrage.
+    return res.json({
+      message: "Login successful",
+      exchange_code: crypto.randomBytes(16).toString("hex"),
+      expires_in: 300,
+    });
+  });
+
   // --- Panel admin (protégé par server.adminPassword) ---
   app.use("/admin", requireAdminAuth, express.static(path.join(__dirname, "public")));
 
@@ -299,7 +329,9 @@ async function main() {
     if (!incoming || !Array.isArray(incoming.games) || typeof incoming.server !== "object") {
       return res.status(400).json({ message: "Format de config invalide." });
     }
-    const previousMaintenance = loadGameConfig().maintenance;
+    const previousConfig = loadGameConfig();
+    const previousMaintenance = previousConfig.maintenance;
+    const previousModules = previousConfig.modules;
     saveGameConfig(incoming);
     // Un jeu ajouté via l'admin doit avoir son dossier + manifest tout de suite
     for (const game of incoming.games) {
@@ -317,6 +349,14 @@ async function main() {
       console.log(
         `[backend-dev] Maintenance ${nextMaintenance.enabled ? "activée" : "désactivée"} — diffusée à ${io.engine.clientsCount} launcher(s)`
       );
+    }
+
+    // Idem pour les modules (activation, paramètres) : la sidebar des
+    // launchers ouverts se met à jour et les modules "tâche de fond"
+    // (ex: Discord Rich Presence) relisent leur config tout de suite.
+    if (JSON.stringify(previousModules) !== JSON.stringify(incoming.modules || {})) {
+      io.emit("modules");
+      console.log(`[backend-dev] Modules modifiés — diffusé à ${io.engine.clientsCount} launcher(s)`);
     }
 
     res.json({ ok: true });

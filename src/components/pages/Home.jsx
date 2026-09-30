@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../../hooks/useGame";
+import { useLanguage } from "../../context/LanguageContext";
 import ProgressBar from "../ProgressBar";
 
 export default function Home({
@@ -11,6 +12,7 @@ export default function Home({
   maintenance,
   canDownload,
 }) {
+  const { t } = useLanguage();
   const { status, progress, busy, running, error, install, launch } = useGame(gameId);
   const [hardware, setHardware] = useState(null);
 
@@ -27,18 +29,18 @@ export default function Home({
   const underMaintenance = Boolean(maintenance?.enabled);
 
   let primaryAction = launch;
-  let primaryLabel = "Jouer";
+  let primaryLabel = t("home.play");
   let primaryIcon = "play_arrow";
   let isBlocked = false;
 
   if (!installed) {
     primaryAction = install;
-    primaryLabel = "Télécharger";
+    primaryLabel = t("home.download");
     primaryIcon = "download";
     isBlocked = !canDownload;
   } else if (!upToDate) {
     primaryAction = install;
-    primaryLabel = "Mettre à jour";
+    primaryLabel = t("home.update");
     primaryIcon = "update";
     isBlocked = !canDownload;
   } else {
@@ -47,10 +49,10 @@ export default function Home({
   }
 
   if (isBlocked) {
-    primaryLabel = "Indisponible";
+    primaryLabel = t("home.unavailable");
     primaryIcon = "lock";
   } else if (running) {
-    primaryLabel = "En cours";
+    primaryLabel = t("home.running");
     primaryIcon = "sports_esports";
   }
 
@@ -62,26 +64,26 @@ export default function Home({
 
       <div className="relative z-10 h-full flex flex-col justify-end px-9 pb-8">
         <p className="text-[11px] font-semibold text-flux-400 tracking-wide mb-1.5">
-          {status?.displayVersion ? `Version ${status.displayVersion}` : "Saison en cours"}
+          {status?.displayVersion ? t("home.versionLabel", { version: status.displayVersion }) : t("home.currentSeason")}
         </p>
         <h1 className="text-[32px] font-bold tracking-tight leading-none mb-2 text-ink-100">
-          {status?.name ?? "Bienvenue de retour"}
+          {status?.name ?? t("home.welcomeBack")}
         </h1>
         <p className="text-sm text-ink-400 max-w-sm mb-5">
           {underMaintenance
-            ? "Le jeu est momentanément indisponible."
+            ? t("home.maintenanceUnavailable")
             : installed
               ? upToDate
-                ? "Ton jeu est prêt."
-                : "Une mise à jour est disponible."
-              : "Le jeu n'est pas encore installé sur cet appareil."}
+                ? t("home.ready")
+                : t("home.updateAvailable")
+              : t("home.notInstalled")}
         </p>
 
         {hardware && !hardware.meets && !underMaintenance && (
           <div className="mb-5 max-w-md rounded-lg border border-amber-400/20 bg-amber-400/10 px-3.5 py-2.5">
             <p className="text-[11px] font-semibold text-amber-400 mb-1 flex items-center gap-1.5">
               <span className="material-symbols-rounded !text-[14px]">warning</span>
-              Configuration en dessous des recommandations
+              {t("home.belowRecommended")}
             </p>
             {hardware.warnings.map((warning) => (
               <p key={warning} className="text-[11px] text-amber-400/80">
@@ -89,7 +91,7 @@ export default function Home({
               </p>
             ))}
             <p className="text-[10px] text-ink-500 mt-1">
-              Tu peux quand même jouer, mais les performances risquent d'être limitées.
+              {t("home.canStillPlay")}
             </p>
           </div>
         )}
@@ -106,7 +108,7 @@ export default function Home({
                 className="text-xs font-medium text-ink-400 hover:text-ink-200 transition-colors flex items-center gap-1"
               >
                 <span className="material-symbols-rounded !text-[16px]">grid_view</span>
-                Library
+                {t("home.library")}
               </button>
             )}
             {onGoToNews && (
@@ -115,7 +117,7 @@ export default function Home({
                 className="text-xs font-medium text-ink-400 hover:text-ink-200 transition-colors flex items-center gap-1"
               >
                 <span className="material-symbols-rounded !text-[16px]">feed</span>
-                Actualités
+                {t("home.news")}
                 {hasUnreadNews && <span className="w-1.5 h-1.5 rounded-full bg-flux-500" />}
               </button>
             )}
@@ -130,7 +132,7 @@ export default function Home({
             <button
               onClick={primaryAction}
               disabled={downloading || !gameId || isBlocked || running}
-              title={isBlocked ? maintenance?.message || "Indisponible pendant la maintenance" : undefined}
+              title={isBlocked ? maintenance?.message || t("home.unavailableDuringMaintenance") : undefined}
               className="flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-accent-500 to-flux-500 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm text-white shadow-glow transition-all"
             >
               {running ? (
@@ -138,7 +140,7 @@ export default function Home({
               ) : (
                 <span className="material-symbols-rounded !text-[19px]">{primaryIcon}</span>
               )}
-              {downloading ? "Téléchargement…" : primaryLabel}
+              {downloading ? t("home.downloading") : primaryLabel}
             </button>
           </div>
         </div>

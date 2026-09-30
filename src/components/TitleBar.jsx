@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import logo from "../../electron/assets/icon.png";
 
 export default function TitleBar() {
   const [appName, setAppName] = useState(null);
@@ -10,7 +11,7 @@ export default function TitleBar() {
   return (
     <div className="h-8 flex items-center justify-between bg-base-975 shrink-0 [-webkit-app-region:drag]">
       <div className="pl-3.5 flex items-center gap-2">
-        <div className="w-3.5 h-3.5 rounded-[5px] bg-gradient-to-br from-accent-400 to-flux-500" />
+        <img src={logo} alt="" className="w-3.5 h-3.5 rounded-[4px]" />
         <span className="text-[11px] font-medium text-ink-500 tracking-wide">
           {appName}
         </span>

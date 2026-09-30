@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useGame } from "../hooks/useGame";
+import { useLanguage } from "../context/LanguageContext";
 import ProgressBar from "./ProgressBar";
 import { renderMarkdown } from "../lib/markdown";
 
 export default function LibraryItem({ game, maintenance, canDownload = true }) {
+  const { t } = useLanguage();
   const { status, progress, busy, running, error, install, repair, verify, cancel, launch } =
     useGame(game.id);
   const [verifyResult, setVerifyResult] = useState(null);
@@ -43,10 +45,10 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
             {installed && (
               <span className={upToDate ? "text-flux-400" : "text-amber-400"}>
                 {" "}
-                • {upToDate ? "À jour" : "Mise à jour dispo"}
+                • {upToDate ? t("libraryItem.upToDate") : t("libraryItem.updateAvailable")}
               </span>
             )}
-            {!installed && <span> • Non installé</span>}
+            {!installed && <span> • {t("libraryItem.notInstalled")}</span>}
           </p>
         </div>
 
@@ -59,7 +61,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               <span className="material-symbols-rounded !text-[14px]">
                 {showChangelog ? "expand_less" : "expand_more"}
               </span>
-              Nouveautés
+              {t("libraryItem.changelog")}
             </button>
             {showChangelog && (
               <div
@@ -75,8 +77,8 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
         {verifyResult && (
           <p className={`text-[11px] ${verifyResult.healthy ? "text-flux-400" : "text-amber-400"}`}>
             {verifyResult.healthy
-              ? "Fichiers intègres."
-              : `${verifyResult.broken.length} fichier(s) à réparer.`}
+              ? t("libraryItem.filesHealthy")
+              : t("libraryItem.filesToRepair", { count: verifyResult.broken.length })}
           </p>
         )}
 
@@ -90,7 +92,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               className="px-3 py-1.5 rounded-md bg-gradient-to-r from-accent-500 to-flux-500 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-white flex items-center gap-1"
             >
               <span className="material-symbols-rounded !text-[14px]">download</span>
-              Installer
+              {t("libraryItem.install")}
             </button>
           )}
 
@@ -101,7 +103,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               className="px-3 py-1.5 rounded-md bg-gradient-to-r from-accent-500 to-flux-500 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-white flex items-center gap-1"
             >
               <span className="material-symbols-rounded !text-[14px]">update</span>
-              Mettre à jour
+              {t("libraryItem.update")}
             </button>
           )}
 
@@ -109,7 +111,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
             <button
               onClick={launch}
               disabled={underMaintenance || running}
-              title={underMaintenance ? "Indisponible pendant la maintenance" : undefined}
+              title={underMaintenance ? t("libraryItem.unavailableDuringMaintenance") : undefined}
               className="px-3 py-1.5 rounded-md bg-tint/[0.07] hover:bg-tint/[0.12] disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-ink-100 flex items-center gap-1"
             >
               {running ? (
@@ -119,7 +121,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
                   {underMaintenance ? "lock" : "play_arrow"}
                 </span>
               )}
-              {running ? "En cours" : underMaintenance ? "Indisponible" : "Jouer"}
+              {running ? t("libraryItem.running") : underMaintenance ? t("libraryItem.unavailable") : t("libraryItem.play")}
             </button>
           )}
 
@@ -128,7 +130,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               <button
                 onClick={handleVerify}
                 disabled={isWorking}
-                title="Vérifier"
+                title={t("libraryItem.verify")}
                 className="w-7 h-7 rounded-md hover:bg-tint/[0.06] disabled:opacity-50 grid place-items-center text-ink-400"
               >
                 <span className="material-symbols-rounded !text-[16px]">fact_check</span>
@@ -136,7 +138,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
               <button
                 onClick={repair}
                 disabled={isWorking}
-                title="Réparer"
+                title={t("libraryItem.repair")}
                 className="w-7 h-7 rounded-md hover:bg-tint/[0.06] disabled:opacity-50 grid place-items-center text-ink-400"
               >
                 <span className="material-symbols-rounded !text-[16px]">build</span>
@@ -147,7 +149,7 @@ export default function LibraryItem({ game, maintenance, canDownload = true }) {
           {isWorking && (
             <button
               onClick={cancel}
-              title="Annuler"
+              title={t("libraryItem.cancel")}
               className="w-7 h-7 rounded-md hover:bg-red-500/10 grid place-items-center text-red-400"
             >
               <span className="material-symbols-rounded !text-[16px]">close</span>

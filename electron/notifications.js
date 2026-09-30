@@ -14,7 +14,11 @@ const { checkForUpdates } = require("./updater");
 
 let socket = null;
 
-function initNotifications(getMainWindow) {
+/**
+ * @param {() => BrowserWindow|null} getMainWindow
+ * @param {{ onModulesChanged?: () => void }} [handlers]
+ */
+function initNotifications(getMainWindow, handlers = {}) {
   const serverUrl = getConfig().server.url;
   if (!serverUrl) return;
 
@@ -55,6 +59,15 @@ function initNotifications(getMainWindow) {
   // données à deux endroits.
   socket.on("maintenance", () => {
     getMainWindow()?.webContents.send("status:refresh");
+  });
+
+  // Poussé quand l'admin active/désactive un module ou modifie ses
+  // paramètres : la sidebar se met à jour tout de suite (même poke que
+  // pour la maintenance) et les modules "tâche de fond" relisent leur
+  // config (ex: Discord Rich Presence).
+  socket.on("modules", () => {
+    getMainWindow()?.webContents.send("status:refresh");
+    handlers.onModulesChanged?.();
   });
 
   // Volontairement silencieux : le launcher doit rester utilisable même sans

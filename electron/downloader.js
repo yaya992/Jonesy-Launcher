@@ -65,6 +65,13 @@ function downloadFileOnce(url, destPath, expectedSize, expectedSha256, onProgres
         if (cancelToken?.cancelled) {
           req.destroy();
           fileStream.close();
+          // Rejette explicitement plutôt que d'espérer qu'un événement
+          // d'erreur survienne suite au destroy() : selon le moment exact
+          // où l'annulation tombe, req/res peuvent se fermer sans jamais
+          // émettre 'error' ni 'finish', ce qui laisserait la promesse (et
+          // donc tout le Promise.all des workers dans gameManager) bloquée
+          // indéfiniment.
+          settleReject(new Error("Téléchargement annulé"));
           return;
         }
         downloaded += chunk.length;
@@ -102,6 +109,11 @@ function downloadFileOnce(url, destPath, expectedSize, expectedSha256, onProgres
     });
 
     req.on("timeout", () => req.destroy(new Error(`Délai d'attente dépassé pour ${url}`)));
+    // Peut survenir AVANT même que le callback de réponse s'exécute (DNS,
+    // connexion refusée...) : fileStream n'existe pas forcément encore, donc
+    // pas de fermeture à faire ici — seul le cas où l'erreur arrive après la
+    // réponse passe par settleReject (res.on("error") ci-dessus), qui lui
+    // connaît fileStream.
     req.on("error", reject);
   });
 }

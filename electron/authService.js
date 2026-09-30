@@ -75,7 +75,12 @@ class AuthService {
       // Le backend renvoie 503 + { maintenance: true } quand le service est
       // fermé : on le distingue d'un vrai échec d'identifiants pour que l'UI
       // affiche l'écran de maintenance et non "mot de passe incorrect".
-      if (err.maintenance) throw Object.assign(new Error("MAINTENANCE"), { maintenance: true, message: err.message });
+      // .message reste littéralement "MAINTENANCE" (c'est ce que vérifient
+      // LoginScreen.jsx et useGame.js) ; le texte humain du serveur est gardé
+      // à part dans serverMessage plutôt que d'écraser .message avec lui —
+      // sinon la comparaison stricte ne matche jamais et l'UI affiche un
+      // message d'erreur générique rouge au lieu du bandeau de maintenance dédié.
+      if (err.maintenance) throw Object.assign(new Error("MAINTENANCE"), { maintenance: true, serverMessage: err.message });
       throw err;
     });
 
@@ -160,6 +165,38 @@ class AuthService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Échange les identifiants du compte actif contre un exchange_code à usage
+   * unique et très courte durée de vie (quelques minutes), destiné à être
+   * passé au jeu via -client=<code> au lancement.
+   *
+   * Le mot de passe ne quitte donc jamais cette requête : il n'atterrit
+   * jamais dans les arguments de la ligne de commande du process du jeu, où
+   * n'importe quel outil système (Gestionnaire des tâches, WMI, un autre
+   * process sur la machine) pourrait le lire en clair.
+   */
+  async getExchangeCode() {
+    const credentials = this.getLaunchCredentials();
+    if (!credentials) throw new Error("SESSION_EXPIRED");
+
+    const url = new URL(getEndpoints().exchange);
+    const result = await requestJson(
+      url,
+      { method: "POST", headers: { "Content-Type": "application/json" } },
+      credentials
+    ).catch((err) => {
+      // Même logique que login() : une maintenance ne doit pas ressembler à
+      // un échec d'authentification aux yeux de l'UI.
+      if (err.maintenance) throw Object.assign(new Error("MAINTENANCE"), { maintenance: true, serverMessage: err.message });
+      throw err;
+    });
+
+    if (!result?.exchange_code) {
+      throw new Error("Réponse du serveur invalide (exchange_code manquant).");
+    }
+    return result.exchange_code;
   }
 }
 

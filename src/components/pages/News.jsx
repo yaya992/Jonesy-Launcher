@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { renderMarkdown } from "../../lib/markdown";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function News() {
+  const { t } = useLanguage();
   const [news, setNews] = useState(null);
 
   useEffect(() => {
@@ -10,17 +12,17 @@ export default function News() {
 
   return (
     <div className="p-7 overflow-y-auto h-full max-w-2xl">
-      <h1 className="text-lg font-bold text-ink-100">Actualités</h1>
+      <h1 className="text-lg font-bold text-ink-100">{t("pages.news.title")}</h1>
       <p className="text-xs text-ink-500 mt-0.5 mb-5">
-        Les dernières nouvelles du jeu et du serveur.
+        {t("pages.news.subtitle")}
       </p>
 
-      {!news && <p className="text-xs text-ink-500">Chargement…</p>}
+      {!news && <p className="text-xs text-ink-500">{t("common.loading")}</p>}
 
       {news?.length === 0 && (
         <div className="rounded-xl bg-base-900 border border-tint/[0.05] px-5 py-8 text-center">
           <span className="material-symbols-rounded !text-[28px] text-ink-600">feed</span>
-          <p className="text-xs text-ink-500 mt-2">Aucune actualité pour le moment.</p>
+          <p className="text-xs text-ink-500 mt-2">{t("pages.news.empty")}</p>
         </div>
       )}
 

@@ -1,4 +1,7 @@
+import { useLanguage } from "../context/LanguageContext";
+
 export default function MaintenanceBanner({ maintenance }) {
+  const { t } = useLanguage();
   if (!maintenance?.enabled) return null;
 
   return (
@@ -7,13 +10,13 @@ export default function MaintenanceBanner({ maintenance }) {
         construction
       </span>
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-amber-400">Maintenance en cours</p>
+        <p className="text-xs font-semibold text-amber-400">{t("maintenanceBanner.title")}</p>
         {maintenance.message && (
           <p className="text-[11px] text-amber-400/80 mt-0.5">{maintenance.message}</p>
         )}
         {maintenance.allowDownloads && (
           <p className="text-[10px] text-ink-500 mt-1">
-            Les téléchargements et mises à jour restent disponibles.
+            {t("maintenanceBanner.downloadsStillAvailable")}
           </p>
         )}
       </div>

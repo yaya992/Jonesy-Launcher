@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { useUpdater } from "../../hooks/useUpdater";
+import { useServiceStatus } from "../../hooks/useServiceStatus";
 
 function Section({ title, children }) {
   return (
@@ -64,17 +66,11 @@ function Toggle({ checked, onChange }) {
   );
 }
 
-const ACCENT_PRESETS = [
-  { label: "Violet", value: "#6d5bff" },
-  { label: "Cyan", value: "#22d3ee" },
-  { label: "Rose", value: "#f43f5e" },
-  { label: "Vert", value: "#22c55e" },
-  { label: "Orange", value: "#f97316" },
-];
-
 export default function Settings({ gameId }) {
-  const { account, accounts, logout, switchAccount, removeAccount } = useAuth();
+  const { t } = useLanguage();
+  const { accounts, logout, switchAccount, removeAccount } = useAuth();
   const { theme, accentColor, setTheme, setAccentColor } = useTheme();
+  const { language, setLanguage } = useLanguage();
   const [settings, setSettings] = useState(null);
   const [appConfig, setAppConfig] = useState(null);
   const [system, setSystem] = useState(null);
@@ -82,6 +78,15 @@ export default function Settings({ gameId }) {
   const [folderNotice, setFolderNotice] = useState(null);
   const [appVersion, setAppVersion] = useState(null);
   const updater = useUpdater();
+  const { enabledModules } = useServiceStatus();
+
+  const ACCENT_PRESETS = [
+    { label: t("settings.accentPresets.violet"), value: "#6d5bff" },
+    { label: t("settings.accentPresets.cyan"), value: "#22d3ee" },
+    { label: t("settings.accentPresets.pink"), value: "#f43f5e" },
+    { label: t("settings.accentPresets.green"), value: "#22c55e" },
+    { label: t("settings.accentPresets.orange"), value: "#f97316" },
+  ];
 
   const refreshInstallStatus = () => {
     if (!gameId) return;
@@ -103,9 +108,7 @@ export default function Settings({ gameId }) {
     if (!result) return; // sélection annulée
 
     setFolderNotice(
-      wasInstalled
-        ? "Dossier changé. Les fichiers déjà installés n'ont pas été déplacés — relance une installation ou une réparation depuis la Home si besoin."
-        : "Dossier changé. Il sera utilisé pour la prochaine installation."
+      wasInstalled ? t("settings.folderChangedInstalled") : t("settings.folderChangedNew")
     );
     refreshInstallStatus();
   };
@@ -120,11 +123,11 @@ export default function Settings({ gameId }) {
   return (
     <div className="p-7 overflow-y-auto h-full max-w-lg space-y-6">
       <div>
-        <h1 className="text-lg font-bold text-ink-100">Settings</h1>
-        <p className="text-xs text-ink-500 mt-0.5">Comptes et préférences du launcher.</p>
+        <h1 className="text-lg font-bold text-ink-100">{t("settings.title")}</h1>
+        <p className="text-xs text-ink-500 mt-0.5">{t("settings.subtitle")}</p>
       </div>
 
-      <Section title="COMPTES">
+      <Section title={t("settings.sections.accounts")}>
         {accounts.map((acc) => (
           <Row
             key={acc.email}
@@ -135,12 +138,12 @@ export default function Settings({ gameId }) {
               <div className="flex items-center gap-2">
                 {acc.isActive ? (
                   <>
-                    <span className="text-[10px] text-flux-400 font-semibold">ACTIF</span>
+                    <span className="text-[10px] text-flux-400 font-semibold">{t("settings.active")}</span>
                     <button
                       onClick={() => logout()}
                       className="text-xs font-semibold text-red-400 hover:text-red-300"
                     >
-                      Logout
+                      {t("settings.logout")}
                     </button>
                   </>
                 ) : (
@@ -149,11 +152,11 @@ export default function Settings({ gameId }) {
                       onClick={() => switchAccount(acc.email)}
                       className="text-xs font-medium text-flux-400 hover:text-flux-300"
                     >
-                      Utiliser
+                      {t("settings.use")}
                     </button>
                     <button
                       onClick={() => removeAccount(acc.email)}
-                      title="Oublier ce compte"
+                      title={t("settings.forgetAccount")}
                       className="text-ink-500 hover:text-red-400"
                     >
                       <span className="material-symbols-rounded !text-[16px]">close</span>
@@ -164,13 +167,13 @@ export default function Settings({ gameId }) {
             }
           />
         ))}
-        {!accounts.length && <Row icon="person_off" label="Aucun compte mémorisé" />}
+        {!accounts.length && <Row icon="person_off" label={t("settings.noAccounts")} />}
       </Section>
 
-      <Section title="APPARENCE">
+      <Section title={t("settings.sections.appearance")}>
         <Row
           icon="contrast"
-          label="Thème"
+          label={t("settings.theme")}
           action={
             <div className="flex items-center gap-0.5 bg-base-800 rounded-lg p-0.5">
               <button
@@ -181,7 +184,7 @@ export default function Settings({ gameId }) {
                     : "text-ink-500 hover:text-ink-300"
                 }`}
               >
-                Sombre
+                {t("settings.dark")}
               </button>
               <button
                 onClick={() => setTheme("light")}
@@ -191,14 +194,14 @@ export default function Settings({ gameId }) {
                     : "text-ink-500 hover:text-ink-300"
                 }`}
               >
-                Clair
+                {t("settings.light")}
               </button>
             </div>
           }
         />
         <Row
           icon="palette"
-          label="Couleur d'accent"
+          label={t("settings.accentColor")}
           action={
             <div className="flex items-center gap-2">
               {ACCENT_PRESETS.map((preset) => (
@@ -215,7 +218,7 @@ export default function Settings({ gameId }) {
                 />
               ))}
               <label
-                title="Couleur personnalisée"
+                title={t("settings.customColor")}
                 className="relative w-5 h-5 rounded-full overflow-hidden border border-tint/20 cursor-pointer shrink-0"
               >
                 <input
@@ -228,12 +231,40 @@ export default function Settings({ gameId }) {
             </div>
           }
         />
+        <Row
+          icon="translate"
+          label={t("settings.language")}
+          action={
+            <div className="flex items-center gap-0.5 bg-base-800 rounded-lg p-0.5">
+              <button
+                onClick={() => setLanguage("fr")}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  language === "fr"
+                    ? "bg-accent-500 text-white"
+                    : "text-ink-500 hover:text-ink-300"
+                }`}
+              >
+                FR
+              </button>
+              <button
+                onClick={() => setLanguage("en")}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  language === "en"
+                    ? "bg-accent-500 text-white"
+                    : "text-ink-500 hover:text-ink-300"
+                }`}
+              >
+                EN
+              </button>
+            </div>
+          }
+        />
       </Section>
 
-      <Section title="COMPORTEMENT">
+      <Section title={t("settings.sections.behavior")}>
         <Row
           icon="dock_to_bottom"
-          label="Réduire dans la barre système"
+          label={t("settings.minimizeToTray")}
           action={
             <Toggle
               checked={prefs?.minimizeToTray ?? true}
@@ -243,7 +274,7 @@ export default function Settings({ gameId }) {
         />
         <Row
           icon="rocket_launch"
-          label="Lancer au démarrage de Windows"
+          label={t("settings.launchAtStartup")}
           action={
             <Toggle
               checked={prefs?.launchAtStartup ?? false}
@@ -251,22 +282,35 @@ export default function Settings({ gameId }) {
             />
           }
         />
+        {/* Uniquement si l'admin a activé le module : sinon l'option ne servirait à rien */}
+        {enabledModules.discordRpc?.enabled && (
+          <Row
+            icon="sports_esports"
+            label={t("settings.discordPresence")}
+            action={
+              <Toggle
+                checked={prefs?.discordPresence ?? true}
+                onChange={(v) => setPreference("discordPresence", v)}
+              />
+            }
+          />
+        )}
       </Section>
 
-      <Section title="SYSTÈME">
-        <Row icon="memory" label="Processeur" value={system?.cpuModel} />
-        <Row icon="developer_board" label="Cœurs" value={system ? `${system.cpuCores}` : null} />
+      <Section title={t("settings.sections.system")}>
+        <Row icon="memory" label={t("settings.cpu")} value={system?.cpuModel} />
+        <Row icon="developer_board" label={t("settings.cores")} value={system ? `${system.cpuCores}` : null} />
         <Row
           icon="database"
-          label="Mémoire"
-          value={system ? `${system.totalRamGB} Go` : null}
+          label={t("settings.memory")}
+          value={system ? `${system.totalRamGB} ${t("common.go")}` : null}
         />
       </Section>
 
-      <Section title="INSTALLATION">
+      <Section title={t("settings.sections.installation")}>
         <Row
           icon="folder"
-          label="Dossier de jeu"
+          label={t("settings.gameFolder")}
           value={installStatus?.installDir}
           action={
             <div className="flex items-center gap-2">
@@ -275,7 +319,7 @@ export default function Settings({ gameId }) {
                   onClick={() => window.launcher.settings.openFolder(installStatus.installDir)}
                   className="text-xs font-medium text-flux-400 hover:text-flux-300"
                 >
-                  Ouvrir
+                  {t("settings.open")}
                 </button>
               )}
               <button
@@ -283,7 +327,7 @@ export default function Settings({ gameId }) {
                 disabled={!gameId}
                 className="text-xs font-medium text-ink-300 hover:text-ink-100 disabled:opacity-40"
               >
-                Changer
+                {t("settings.change")}
               </button>
             </div>
           }
@@ -295,14 +339,14 @@ export default function Settings({ gameId }) {
         )}
       </Section>
 
-      <Section title="SERVEUR">
-        <Row icon="cloud" label="Backend" value={appConfig?.serverUrl} />
+      <Section title={t("settings.sections.server")}>
+        <Row icon="cloud" label={t("settings.backend")} value={appConfig?.serverUrl} />
       </Section>
 
-      <Section title="MISES À JOUR">
+      <Section title={t("settings.sections.updates")}>
         <Row
           icon="system_update"
-          label="Version du launcher"
+          label={t("settings.launcherVersion")}
           value={appVersion ? `v${appVersion}` : null}
           action={
             <UpdateAction
@@ -321,39 +365,41 @@ export default function Settings({ gameId }) {
       </Section>
 
       <p className="text-[11px] text-ink-600 px-0.5">
-        {appConfig?.appName ?? "Game Launcher"} — version {appVersion ?? "…"}
+        {t("settings.footer", { appName: appConfig?.appName ?? "Game Launcher", version: appVersion ?? "…" })}
       </p>
     </div>
   );
 }
 
 function UpdateAction({ status, percent, onCheck, onRestart }) {
+  const { t } = useLanguage();
+
   if (status === "downloaded") {
     return (
       <button
         onClick={onRestart}
         className="text-xs font-semibold text-flux-400 hover:text-flux-300"
       >
-        Redémarrer pour installer
+        {t("settings.restartToInstall")}
       </button>
     );
   }
 
   if (status === "checking") {
-    return <span className="text-xs text-ink-500">Vérification…</span>;
+    return <span className="text-xs text-ink-500">{t("settings.checking")}</span>;
   }
 
   if (status === "downloading") {
-    return <span className="text-xs text-ink-500">Téléchargement… {percent ?? 0}%</span>;
+    return <span className="text-xs text-ink-500">{t("settings.downloadingPercent", { percent: percent ?? 0 })}</span>;
   }
 
   if (status === "up-to-date") {
-    return <span className="text-xs text-flux-400">À jour</span>;
+    return <span className="text-xs text-flux-400">{t("settings.upToDate")}</span>;
   }
 
   return (
     <button onClick={onCheck} className="text-xs font-medium text-ink-300 hover:text-ink-100">
-      Vérifier
+      {t("settings.checkNow")}
     </button>
   );
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Encapsule tout le cycle de vie d'un jeu côté UI :
@@ -9,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
  */
 export function useGame(gameId) {
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const [status, setStatus] = useState(null);
   const [progress, setProgress] = useState(null); // { phase, percent, bytesDownloaded, totalBytes }
   const [busy, setBusy] = useState(false);
@@ -36,6 +38,10 @@ export function useGame(gameId) {
         refreshStatus();
       }
       if (payload.phase === "cancelled") setBusy(false);
+      if (payload.phase === "error") {
+        setBusy(false);
+        setError(payload.message || t("common.downloadFailed"));
+      }
     });
     const offVerify = window.launcher.library.onVerifyProgress((payload) => {
       if (payload.gameId !== gameId) return;

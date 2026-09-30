@@ -1,25 +1,30 @@
 import AccountSwitcher from "./AccountSwitcher";
+import { useLanguage } from "../context/LanguageContext";
+import logo from "../../electron/assets/icon.png";
 
-const CORE_ITEMS = [
-  { id: "home", label: "Home", icon: "home" },
-  { id: "library", label: "Library", icon: "grid_view", multiGameOnly: true },
+const CORE_ITEM_DEFS = [
+  { id: "home", icon: "home" },
+  { id: "library", icon: "grid_view", multiGameOnly: true },
 ];
 
-const SETTINGS_ITEM = { id: "settings", label: "Settings", icon: "settings" };
+const SETTINGS_ITEM_DEF = { id: "settings", icon: "settings" };
 
 export default function Sidebar({ active, onNavigate, onAddAccount, isMultiGame, modules }) {
+  const { t } = useLanguage();
+
   // Avec un seul jeu, la Library ferait doublon avec la Home : on la masque
   // tant qu'une deuxième saison n'est pas publiée.
-  const coreItems = CORE_ITEMS.filter((item) => !item.multiGameOnly || isMultiGame);
+  const coreItems = CORE_ITEM_DEFS.filter((item) => !item.multiGameOnly || isMultiGame).map(
+    (item) => ({ ...item, label: t(`sidebar.${item.id}`) })
+  );
+  const settingsItem = { ...SETTINGS_ITEM_DEF, label: t("sidebar.settings") };
   // Les modules (news, et tout ce qui viendra ensuite) s'insèrent entre les
   // items fixes et Settings, uniquement s'ils sont activés côté backend.
-  const navItems = [...coreItems, ...modules, SETTINGS_ITEM];
+  const navItems = [...coreItems, ...modules, settingsItem];
 
   return (
     <aside className="w-[76px] shrink-0 bg-base-975 flex flex-col items-center py-4">
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-400 to-flux-500 grid place-items-center font-bold text-white text-sm mb-6 shadow-glow">
-        G
-      </div>
+      <img src={logo} alt="" className="w-9 h-9 rounded-xl mb-6 shadow-glow" />
 
       <nav className="flex-1 flex flex-col items-center gap-2">
         {navItems.map((item) => {
@@ -40,7 +45,7 @@ export default function Sidebar({ active, onNavigate, onAddAccount, isMultiGame,
               key={item.id}
               onClick={handleClick}
               disabled={item.type === "link" && !href}
-              title={item.type === "link" && !href ? `${item.label} (non configuré)` : item.label}
+              title={item.type === "link" && !href ? t("sidebar.notConfigured", { label: item.label }) : item.label}
               className="relative w-12 h-12 grid place-items-center group disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <span

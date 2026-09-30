@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import { useServiceStatus } from "./hooks/useServiceStatus";
 import { useModules } from "./hooks/useModules";
 import { useCatalog } from "./hooks/useCatalog";
@@ -16,6 +17,7 @@ import Library from "./components/pages/Library";
 import Settings from "./components/pages/Settings";
 
 function Shell() {
+  const { t } = useLanguage();
   const { account, loading } = useAuth();
   const [page, setPage] = useState("home");
   // Permet d'afficher l'écran de login pour AJOUTER un compte, sans
@@ -47,7 +49,7 @@ function Shell() {
 
   if (loading) {
     return (
-      <div className="h-full grid place-items-center text-ink-500 text-sm">Chargement…</div>
+      <div className="h-full grid place-items-center text-ink-500 text-sm">{t("common.loading")}</div>
     );
   }
 
@@ -105,9 +107,11 @@ export default function App() {
       <NotificationToasts />
       <div className="flex-1 min-h-0">
         <ThemeProvider>
-          <AuthProvider>
-            <Shell />
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <Shell />
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </div>
     </div>

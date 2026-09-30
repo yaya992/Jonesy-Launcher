@@ -19,6 +19,11 @@ import { useUnreadNews } from "../hooks/useUnreadNews";
  *    `publicData` (les params publics renvoyés par /launcher/status — voir
  *    `publicParams` dans backend/module-catalog.js). C'est le cas de "discord".
  *
+ * Certains modules n'ont AUCUNE entrée ici : ce sont des tâches de fond
+ * exécutées par le process principal Electron, sans page ni icône (ex:
+ * "discordRpc" → electron/discordPresence.js). Leur état vient du même
+ * /launcher/status ; ils n'apparaissent simplement pas dans la sidebar.
+ *
  * Pour ajouter un module :
  *  1. Déclare-le dans backend/module-catalog.js (+ DEFAULT_CONFIG.modules)
  *  2. Ajoute une entrée ici avec le même `id`

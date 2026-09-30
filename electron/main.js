@@ -14,6 +14,13 @@ const { getSystemInfo, checkRequirements } = require("./systemInfo");
 const { getMaintenance, getServiceStatus } = require("./statusService");
 const { initAutoUpdater, checkForUpdates, quitAndInstall, getPendingUpdateVersion } = require("./updater");
 const { initNotifications, destroyNotifications } = require("./notifications");
+const {
+  initDiscordPresence,
+  refreshDiscordPresence,
+  setPlaying: setDiscordPlaying,
+  setIdle: setDiscordIdle,
+  destroyDiscordPresence,
+} = require("./discordPresence");
 
 const isDev = process.env.NODE_ENV === "development";
 const config = getConfig();
@@ -38,6 +45,8 @@ const store = new Store({
       launchAtStartup: config.behavior?.launchAtStartup ?? false,
       theme: config.behavior?.theme ?? "dark",
       accentColor: config.behavior?.accentColor ?? "#6d5bff",
+      language: config.behavior?.language ?? "fr",
+      discordPresence: config.behavior?.discordPresence ?? true,
     },
   },
 });
@@ -146,7 +155,12 @@ app.whenReady().then(() => {
   createTray();
   applyLaunchAtStartup(getPreferences().launchAtStartup);
   initAutoUpdater(mainWindow);
-  initNotifications(() => mainWindow);
+  initNotifications(() => mainWindow, { onModulesChanged: refreshDiscordPresence });
+  initDiscordPresence({
+    getStatus: getServiceStatus,
+    isEnabledByUser: () => getPreferences().discordPresence !== false,
+    getAppName: () => config.app.name,
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -162,6 +176,7 @@ app.on("before-quit", () => {
   isQuitting = true;
   gameManager.destroy();
   destroyNotifications();
+  destroyDiscordPresence();
   gameWatchers.forEach((interval) => clearInterval(interval));
   gameWatchers.clear();
 });
@@ -306,9 +321,25 @@ ipcMain.handle("library:install", async (_e, gameId) => {
     throw new Error("MAINTENANCE");
   }
 
-  gameManager.install(gameId, (progress) => {
-    mainWindow?.webContents.send("download:progress", { gameId, ...progress });
-  });
+  // Volontairement non-attendu : install() peut prendre plusieurs minutes,
+  // et l'IPC doit répondre tout de suite pour que l'UI passe en "En cours"
+  // (la progression réelle arrive via l'événement download:progress ci-dessous).
+  // Le .catch() est donc INDISPENSABLE, pas optionnel : sans lui, un échec
+  // (manifest injoignable, fichier en échec après tous les essais de
+  // downloader.js) devient un rejet de promesse non intercepté côté process
+  // principal, et l'UI reste bloquée sur "En cours" pour toujours puisque
+  // plus aucun événement de progression n'arrive jamais.
+  gameManager
+    .install(gameId, (progress) => {
+      mainWindow?.webContents.send("download:progress", { gameId, ...progress });
+    })
+    .catch((err) => {
+      mainWindow?.webContents.send("download:progress", {
+        gameId,
+        phase: "error",
+        message: err.message || String(err),
+      });
+    });
   return { started: true };
 });
 
@@ -319,9 +350,19 @@ ipcMain.handle("library:verify", async (_e, gameId) => {
 });
 
 ipcMain.handle("library:repair", async (_e, gameId) => {
-  gameManager.repair(gameId, (progress) => {
-    mainWindow?.webContents.send("download:progress", { gameId, ...progress });
-  });
+  // Même raison qu'installer ci-dessus : fire-and-forget assumé, mais
+  // jamais sans filet.
+  gameManager
+    .repair(gameId, (progress) => {
+      mainWindow?.webContents.send("download:progress", { gameId, ...progress });
+    })
+    .catch((err) => {
+      mainWindow?.webContents.send("download:progress", {
+        gameId,
+        phase: "error",
+        message: err.message || String(err),
+      });
+    });
   return { started: true };
 });
 
@@ -425,9 +466,14 @@ const gameWatchers = new Map();
 // changer d'onglet démonte le composant, qui repart de zéro au retour, même
 // si le jeu tourne toujours pour de vrai.
 const runningGames = new Set();
+// gameId en cours de lancement (entre le clic et le spawn effectif) : évite
+// un double-clic qui déclencherait deux échanges d'exchange_code et deux
+// process, maintenant que le lancement fait un aller-retour réseau.
+const launchingGames = new Set();
 
 function markGameExited(gameId) {
   runningGames.delete(gameId);
+  if (runningGames.size === 0) setDiscordIdle();
   mainWindow?.webContents.send("game:exited", { gameId });
 }
 
@@ -459,52 +505,68 @@ ipcMain.handle("game:launch", async (_e, gameId) => {
     throw new Error("Jeu introuvable ou non installé.");
   }
 
-  const credentials = authService.getLaunchCredentials();
-  if (!credentials) {
-    throw new Error("SESSION_EXPIRED");
+  if (runningGames.has(gameId) || launchingGames.has(gameId)) {
+    // Déjà lancé, ou lancement déjà en cours (double-clic pendant l'aller-
+    // retour réseau de l'échange de code) : on ne fait rien de plus plutôt
+    // que de spawn un deuxième process.
+    return { launched: true, alreadyRunning: true };
   }
+  launchingGames.add(gameId);
 
-  // Le jeu se lance toujours via l'anticheat, placé à la racine du dossier
-  // d'installation (téléchargé comme n'importe quel autre fichier du manifest).
-  const installDir = gameManager.getInstallDir(gameId);
-  const anticheatName = getConfig().game.launchExecutable;
-  const anticheatPath = path.join(installDir, anticheatName);
+  try {
+    // Le mot de passe ne sert plus qu'à cet échange, jamais transmis au jeu
+    // lui-même : un exchange_code à usage unique (quelques minutes de durée
+    // de vie) est passé à la place, ce qui évite qu'il traîne en clair dans
+    // les arguments du process (visibles via le Gestionnaire des tâches,
+    // WMI, etc. — n'importe quel autre logiciel sur la machine).
+    const exchangeCode = await authService.getExchangeCode();
 
-  if (!fs.existsSync(anticheatPath)) {
-    throw new Error(`${anticheatName} introuvable dans le dossier du jeu.`);
-  }
+    // Le jeu se lance toujours via l'anticheat, placé à la racine du dossier
+    // d'installation (téléchargé comme n'importe quel autre fichier du manifest).
+    const installDir = gameManager.getInstallDir(gameId);
+    const anticheatName = getConfig().game.launchExecutable;
+    const anticheatPath = path.join(installDir, anticheatName);
 
-  const args = [`-email=${credentials.email}`, `-mdp=${credentials.password}`];
-
-  if (process.platform === "win32") {
-    // La quasi-totalité des anti-cheats exigent l'élévation (voir
-    // launchElevatedWindows ci-dessus) — c'est ce qui déclenche l'invite
-    // UAC que le joueur voit s'afficher au clic sur Jouer.
-    let pid;
-    try {
-      pid = await launchElevatedWindows(anticheatPath, args, installDir);
-    } catch (err) {
-      throw new Error(
-        `Impossible de lancer ${anticheatName} avec les droits administrateur : ${err.message}`
-      );
+    if (!fs.existsSync(anticheatPath)) {
+      throw new Error(`${anticheatName} introuvable dans le dossier du jeu.`);
     }
+
+    const args = [`-client=${exchangeCode}`];
+
+    if (process.platform === "win32") {
+      // La quasi-totalité des anti-cheats exigent l'élévation (voir
+      // launchElevatedWindows ci-dessus) — c'est ce qui déclenche l'invite
+      // UAC que le joueur voit s'afficher au clic sur Jouer.
+      let pid;
+      try {
+        pid = await launchElevatedWindows(anticheatPath, args, installDir);
+      } catch (err) {
+        throw new Error(
+          `Impossible de lancer ${anticheatName} avec les droits administrateur : ${err.message}`
+        );
+      }
+      runningGames.add(gameId);
+      setDiscordPlaying();
+      watchWindowsProcess(gameId, pid);
+      return { launched: true, pid };
+    }
+
+    const child = spawn(anticheatPath, args, {
+      cwd: installDir,
+      detached: true,
+      stdio: "ignore",
+    });
+    child.unref();
     runningGames.add(gameId);
-    watchWindowsProcess(gameId, pid);
-    return { launched: true, pid };
+    setDiscordPlaying();
+    child.on("exit", () => {
+      markGameExited(gameId);
+    });
+
+    return { launched: true, pid: child.pid };
+  } finally {
+    launchingGames.delete(gameId);
   }
-
-  const child = spawn(anticheatPath, args, {
-    cwd: installDir,
-    detached: true,
-    stdio: "ignore",
-  });
-  child.unref();
-  runningGames.add(gameId);
-  child.on("exit", () => {
-    markGameExited(gameId);
-  });
-
-  return { launched: true, pid: child.pid };
 });
 
 /* ------------------------------------------------------------------ */
@@ -521,6 +583,7 @@ ipcMain.handle("settings:setPreference", async (_e, { key, value }) => {
   store.set("preferences", preferences);
 
   if (key === "launchAtStartup") applyLaunchAtStartup(value);
+  if (key === "discordPresence") refreshDiscordPresence();
 
   return preferences;
 });
