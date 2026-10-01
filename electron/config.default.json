@@ -4,7 +4,7 @@
     "productId": "com.jonesy.launcher"
   },
   "server": {
-    "url": "http://craftmylife.duckdns.org:3551/launcher/"
+    "url": "http://craftmylife.duckdns.org:3551/"
   },
   "window": {
     "width": 1000,
