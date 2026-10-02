@@ -11,6 +11,7 @@ const { Notification } = require("electron");
 const { io } = require("socket.io-client");
 const { getConfig } = require("./config");
 const { checkForUpdates } = require("./updater");
+const { invalidateStatusCache } = require("./statusService");
 
 let socket = null;
 
@@ -58,6 +59,7 @@ function initNotifications(getMainWindow, handlers = {}) {
   // que le polling habituel (status:get), au lieu de dupliquer la forme des
   // données à deux endroits.
   socket.on("maintenance", () => {
+    invalidateStatusCache();
     getMainWindow()?.webContents.send("status:refresh");
   });
 
@@ -66,6 +68,7 @@ function initNotifications(getMainWindow, handlers = {}) {
   // pour la maintenance) et les modules "tâche de fond" relisent leur
   // config (ex: Discord Rich Presence).
   socket.on("modules", () => {
+    invalidateStatusCache();
     getMainWindow()?.webContents.send("status:refresh");
     handlers.onModulesChanged?.();
   });

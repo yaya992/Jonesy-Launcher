@@ -12,6 +12,7 @@ const { getConfig, getConfigPath, reloadConfig } = require("./config");
 const { getEndpoints } = require("./endpoints");
 const { getSystemInfo, checkRequirements } = require("./systemInfo");
 const { getMaintenance, getServiceStatus } = require("./statusService");
+const { createCache } = require("./requestCache");
 const { initAutoUpdater, checkForUpdates, quitAndInstall, getPendingUpdateVersion } = require("./updater");
 const { initNotifications, destroyNotifications } = require("./notifications");
 const {
@@ -224,6 +225,14 @@ ipcMain.handle("auth:removeAccount", async (_e, email) => {
   return authService.removeAccount(email);
 });
 
+// Contenu éditorial (actus, FAQ, crédits, réseaux sociaux) : l'admin le
+// modifie rarement, donc pas besoin de retaper le backend à chaque fois que
+// le joueur revient sur ces pages. 2 minutes : assez pour éviter le gros des
+// requêtes répétées en navigant, assez court pour qu'un changement admin
+// arrive sans que personne n'ait besoin de redémarrer le launcher.
+const CONTENT_CACHE_TTL_MS = 2 * 60 * 1000;
+const contentCache = createCache();
+
 /** Petit GET JSON générique, tolérant : ne rejette jamais, renvoie `fallback` sur tout échec. */
 function fetchJsonOrDefault(url, fallback) {
   if (!url) return Promise.resolve(fallback);
@@ -253,7 +262,9 @@ function fetchJsonOrDefault(url, fallback) {
 /* IPC — Actualités                                                    */
 /* ------------------------------------------------------------------ */
 ipcMain.handle("news:list", async () => {
-  const result = await fetchJsonOrDefault(getEndpoints().news, []);
+  const result = await contentCache.cachedFetch("news", CONTENT_CACHE_TTL_MS, () =>
+    fetchJsonOrDefault(getEndpoints().news, [])
+  );
   return Array.isArray(result) ? result : [];
 });
 
@@ -261,7 +272,9 @@ ipcMain.handle("news:list", async () => {
 /* IPC — FAQ                                                           */
 /* ------------------------------------------------------------------ */
 ipcMain.handle("content:faq", async () => {
-  const result = await fetchJsonOrDefault(getEndpoints().faq, null);
+  const result = await contentCache.cachedFetch("faq", CONTENT_CACHE_TTL_MS, () =>
+    fetchJsonOrDefault(getEndpoints().faq, null)
+  );
   return result?.body ? result : null;
 });
 
@@ -269,7 +282,9 @@ ipcMain.handle("content:faq", async () => {
 /* IPC — Réseaux sociaux                                                */
 /* ------------------------------------------------------------------ */
 ipcMain.handle("content:socials", async () => {
-  const result = await fetchJsonOrDefault(getEndpoints().socials, []);
+  const result = await contentCache.cachedFetch("socials", CONTENT_CACHE_TTL_MS, () =>
+    fetchJsonOrDefault(getEndpoints().socials, [])
+  );
   return Array.isArray(result) ? result : [];
 });
 
@@ -284,7 +299,9 @@ ipcMain.handle("content:serverStatus", async () => {
 /* IPC — Équipe                                                        */
 /* ------------------------------------------------------------------ */
 ipcMain.handle("content:credits", async () => {
-  const result = await fetchJsonOrDefault(getEndpoints().credits, []);
+  const result = await contentCache.cachedFetch("credits", CONTENT_CACHE_TTL_MS, () =>
+    fetchJsonOrDefault(getEndpoints().credits, [])
+  );
   return Array.isArray(result) ? result : [];
 });
 
